@@ -85,8 +85,9 @@ export async function mintNFT(
     const txHash = await writeContract(wagmiConfig, {
       address: CONTRACTS.NFT_ADDRESS as `0x${string}`,
       abi: NFT_ABI,
-      functionName: 'safeMint',
-      args: [creator as `0x${string}`, metadataURI],
+      functionName: 'publicMint',
+      args: [metadataURI],
+      value: 0n, // Free mint for now
     });
 
     console.log('⛓️ Transaction submitted:', txHash);

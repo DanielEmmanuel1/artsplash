@@ -20,7 +20,7 @@ if (typeof window !== 'undefined') {
 
 // Simplified ABIs for minting (full ABIs will be generated via TypeChain)
 export const NFT_ABI = [
-  // safeMint function
+  // safeMint function (admin only)
   {
     "inputs": [
       { "internalType": "address", "name": "to", "type": "address" },
@@ -29,6 +29,16 @@ export const NFT_ABI = [
     "name": "safeMint",
     "outputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  // publicMint function (anyone, with limits)
+  {
+    "inputs": [
+      { "internalType": "string", "name": "uri", "type": "string" }
+    ],
+    "name": "publicMint",
+    "outputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+    "stateMutability": "payable",
     "type": "function"
   },
   // totalSupply function
@@ -52,6 +62,17 @@ export const NFT_ABI = [
     "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
     "name": "tokenURI",
     "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  // hasRole function (AccessControl)
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "hasRole",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },

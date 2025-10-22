@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, CheckCircle, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { useWallet } from '@/lib/wallet/useWallet';
+import { useAdmin } from '@/lib/useAdmin';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { mintNFT, validateMintRequirements, type MintStatus } from '@/lib/mint';
@@ -25,6 +26,7 @@ export default function UploadForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addNFT } = useStore();
   const { connected, address } = useWallet();
+  const { isAdmin, isMinter } = useAdmin();
   const router = useRouter();
   
   const contractsDeployed = areContractsDeployed();
@@ -129,9 +131,30 @@ export default function UploadForm() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Contract Deployment Warning */}
-      {!contractsDeployed && (
+        <div className="max-w-2xl mx-auto">
+          {/* User Status Indicator */}
+          {connected && contractsDeployed && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 bg-white dark:bg-gray/20 rounded-lg p-4 border border-gray/20 dark:border-gray/30"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${isAdmin ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                  <span className="text-sm font-medium text-metallicBlack dark:text-white">
+                    {isAdmin ? '👑 Admin User' : '👤 Regular User'}
+                  </span>
+                </div>
+                <div className="text-xs text-gray dark:text-smokeWhite">
+                  {isAdmin ? 'Unlimited minting' : '2 NFTs per 2 hours'}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Contract Deployment Warning */}
+          {!contractsDeployed && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -300,7 +323,7 @@ export default function UploadForm() {
               {!mintStatus && 'Processing...'}
             </span>
           ) : contractsDeployed ? (
-            '🚀 Mint NFT on Blockchain'
+            isAdmin ? '🚀 Admin Mint (Unlimited)' : '🎨 Public Mint (2 per 2hrs)'
           ) : (
             '🎨 Create NFT (Demo Mode)'
           )}
