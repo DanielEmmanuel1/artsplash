@@ -61,6 +61,58 @@ export default function UploadForm() {
     }
   };
 
+  const handleTestMint = async () => {
+    if (!connected || !address) {
+      setError('Please connect your wallet first');
+      return;
+    }
+
+    setError(null);
+    setMintStatus(null);
+    setIsLoading(true);
+
+    try {
+      console.log('🧪 Starting test mint...');
+      
+      setMintStatus({
+        stage: 'uploading',
+        message: 'Creating test NFT...',
+      });
+
+      // Simulate some processing time
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      setMintStatus({
+        stage: 'complete',
+        message: 'Test NFT created successfully!',
+      });
+
+      // Add test NFT to store
+      const testNFT = {
+        name: `Test NFT ${Date.now()}`,
+        description: 'This is a test NFT created for debugging purposes',
+        image: 'https://picsum.photos/seed/test/400/400',
+        isListed: false,
+      };
+
+      console.log('🧪 Adding test NFT to store:', testNFT);
+      addNFT(testNFT);
+      console.log('🧪 Test NFT added to store');
+
+      setShowSuccess(true);
+      
+      // Reset form
+      setTimeout(() => {
+        setMintStatus(null);
+        setIsLoading(false);
+      }, 1000);
+    } catch (err: any) {
+      console.error('Test mint error:', err);
+      setError(err.message || 'Test minting failed');
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -78,33 +130,89 @@ export default function UploadForm() {
     setIsLoading(true);
 
     try {
-      // Real blockchain minting
-      const result = await mintNFT(
-        imageFile,
-        name,
-        description,
-        address,
-        (status) => {
-          setMintStatus(status);
-          if (status.txHash) {
-            setTxHash(status.txHash);
+      if (contractsDeployed) {
+        // Real blockchain minting
+        const result = await mintNFT(
+          imageFile,
+          name,
+          description,
+          address,
+          (status) => {
+            setMintStatus(status);
+            if (status.txHash) {
+              setTxHash(status.txHash);
+            }
+            if (status.tokenId) {
+              setTokenId(status.tokenId);
+            }
           }
-          if (status.tokenId) {
-            setTokenId(status.tokenId);
-          }
-        }
-      );
+        );
 
-      if (result.success) {
-        // Add to local store (optional - for dashboard display)
+        if (result.success) {
+          console.log('✅ Minting successful, adding to store:', {
+            name,
+            description,
+            tokenId: result.tokenId,
+            txHash: result.txHash,
+          });
+
+          // Add to local store for dashboard display
+          addNFT({
+            name,
+            description,
+            image: result.imageHash ? ipfsToHttp(result.imageHash) : imagePreview!,
+            isListed: false,
+            tokenId: result.tokenId,
+            txHash: result.txHash,
+          });
+
+          console.log('✅ NFT added to store');
+
+          setShowSuccess(true);
+          
+          // Reset form
+          setTimeout(() => {
+            setName('');
+            setDescription('');
+            setImageFile(null);
+            setImagePreview(null);
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+            }
+            setMintStatus(null);
+          }, 1000);
+        } else {
+          setError(result.error || 'Minting failed');
+        }
+      } else {
+        // Demo mode - just add to local store
+        setMintStatus({
+          stage: 'uploading',
+          message: 'Creating NFT in demo mode...',
+        });
+
+        // Simulate some processing time
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        setMintStatus({
+          stage: 'complete',
+          message: 'NFT created successfully in demo mode!',
+        });
+
+        // Add to local store
+        console.log('✅ Demo mode - adding NFT to store:', {
+          name,
+          description,
+        });
+
         addNFT({
           name,
           description,
-          image: result.imageHash ? ipfsToHttp(result.imageHash) : imagePreview!,
+          image: imagePreview!,
           isListed: false,
-          tokenId: result.tokenId,
-          txHash: result.txHash,
         });
+
+        console.log('✅ Demo NFT added to store');
 
         setShowSuccess(true);
         
@@ -119,8 +227,6 @@ export default function UploadForm() {
           }
           setMintStatus(null);
         }, 1000);
-      } else {
-        setError(result.error || 'Minting failed');
       }
     } catch (err: any) {
       console.error('Minting error:', err);
@@ -328,6 +434,24 @@ export default function UploadForm() {
             '🎨 Create NFT (Demo Mode)'
           )}
         </motion.button>
+
+        {/* Test Mint Button for Debugging */}
+        {connected && (
+          <motion.button
+            type="button"
+            onClick={handleTestMint}
+            disabled={isLoading}
+            whileHover={{ scale: isLoading ? 1 : 1.02 }}
+            whileTap={{ scale: isLoading ? 1 : 0.98 }}
+            className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-200 mt-3 ${
+              isLoading
+                ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                : 'bg-yellow-500 hover:bg-yellow-600 text-white shadow-md hover:shadow-lg'
+            }`}
+          >
+            🧪 Test Mint (Debug) - Add NFT to Dashboard
+          </motion.button>
+        )}
 
         {/* Gas Estimate */}
         {connected && contractsDeployed && !isLoading && (

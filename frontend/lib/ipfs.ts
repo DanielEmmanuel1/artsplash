@@ -27,12 +27,29 @@ export async function uploadImageToIPFS(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
 
-    // Using Pinata's public gateway (you can also use your own API key)
+    // Using Pinata's API with JWT or API key authentication
+    const pinataJWT = process.env.NEXT_PUBLIC_PINATA_JWT;
+    const pinataApiKey = process.env.NEXT_PUBLIC_PINATA_API_KEY;
+    
+    if (!pinataJWT && !pinataApiKey) {
+      throw new Error('Pinata credentials not found. Please set NEXT_PUBLIC_PINATA_JWT or NEXT_PUBLIC_PINATA_API_KEY in your .env.local file');
+    }
+
+    const headers: Record<string, string> = {};
+    
+    if (pinataJWT) {
+      headers['Authorization'] = `Bearer ${pinataJWT}`;
+    } else if (pinataApiKey) {
+      headers['pinata_api_key'] = pinataApiKey;
+      const secretKey = process.env.NEXT_PUBLIC_PINATA_SECRET_API_KEY;
+      if (secretKey) {
+        headers['pinata_secret_api_key'] = secretKey;
+      }
+    }
+
     const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
-      },
+      headers,
       body: formData,
     });
 
@@ -84,12 +101,30 @@ async function uploadToFallbackIPFS(file: File): Promise<string> {
  */
 export async function uploadMetadataToIPFS(metadata: NFTMetadata): Promise<string> {
   try {
+    const pinataJWT = process.env.NEXT_PUBLIC_PINATA_JWT;
+    const pinataApiKey = process.env.NEXT_PUBLIC_PINATA_API_KEY;
+    
+    if (!pinataJWT && !pinataApiKey) {
+      throw new Error('Pinata credentials not found. Please set NEXT_PUBLIC_PINATA_JWT or NEXT_PUBLIC_PINATA_API_KEY in your .env.local file');
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (pinataJWT) {
+      headers['Authorization'] = `Bearer ${pinataJWT}`;
+    } else if (pinataApiKey) {
+      headers['pinata_api_key'] = pinataApiKey;
+      const secretKey = process.env.NEXT_PUBLIC_PINATA_SECRET_API_KEY;
+      if (secretKey) {
+        headers['pinata_secret_api_key'] = secretKey;
+      }
+    }
+
     const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
-      },
+      headers,
       body: JSON.stringify(metadata),
     });
 

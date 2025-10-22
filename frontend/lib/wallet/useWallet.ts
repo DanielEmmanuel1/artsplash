@@ -237,7 +237,7 @@ export function useWallet(): WalletState {
     switchChain: switchToChain,
     
     // Connectors
-    connectors,
+    connectors: connectors as any,
     
     // Errors
     error: connectError || switchError || undefined,

@@ -5,11 +5,9 @@ import { useStore } from '@/lib/store';
 import { useWallet } from '@/lib/wallet/useWallet';
 import DashboardGrid from '@/components/DashboardGrid';
 import { useRouter } from 'next/navigation';
-import { useBalance, useReadContract } from 'wagmi';
-import { readContract } from 'wagmi/actions';
-import { useEffect, useState } from 'react';
-import { CONTRACTS, NFT_ABI } from '@/lib/contracts';
-import { wagmiConfig } from '@/lib/wallet/config';
+import { useBalance } from 'wagmi';
+import { useEffect, useState, useCallback } from 'react';
+import { areContractsDeployed } from '@/lib/contracts';
 
 export default function DashboardPage() {
   const { userNFTs } = useStore();
@@ -19,16 +17,8 @@ export default function DashboardPage() {
     address: address as `0x${string}` | undefined,
   });
   
-  // Fetch total NFTs minted from blockchain
-  const { data: totalSupply } = useReadContract({
-    address: CONTRACTS.NFT_ADDRESS as `0x${string}`,
-    abi: NFT_ABI,
-    functionName: 'totalSupply',
-  });
-  
   const [balanceDisplay, setBalanceDisplay] = useState('0.00');
-  const [totalMinted, setTotalMinted] = useState('0');
-  const [myOwnedCount, setMyOwnedCount] = useState(0);
+  const [nftCounts, setNftCounts] = useState({ total: 0, owned: 0 });
 
   useEffect(() => {
     if (balance) {
@@ -36,49 +26,11 @@ export default function DashboardPage() {
     }
   }, [balance]);
 
-  useEffect(() => {
-    if (totalSupply !== undefined) {
-      setTotalMinted(totalSupply.toString());
-    }
-  }, [totalSupply]);
-
-  // Calculate how many NFTs the connected wallet owns (on-chain)
-  useEffect(() => {
-    const loadOwned = async () => {
-      try {
-        if (!address || totalSupply === undefined) {
-          setMyOwnedCount(0);
-          return;
-        }
-        const supply = Number(totalSupply);
-        if (supply === 0) {
-          setMyOwnedCount(0);
-          return;
-        }
-        // Scan recent tokenIds (cap to first 200 tokens for performance)
-        const maxScan = Math.min(supply, 200);
-        const tokenIds = Array.from({ length: maxScan }, (_, i) => i + 1);
-        const owners = await Promise.all(
-          tokenIds.map((id) =>
-            readContract(wagmiConfig, {
-              address: CONTRACTS.NFT_ADDRESS as `0x${string}`,
-              abi: NFT_ABI,
-              functionName: 'ownerOf',
-              args: [BigInt(id)],
-            }).catch(() => undefined)
-          )
-        );
-        const count = owners.reduce((acc, owner) => {
-          if (!owner) return acc;
-          return acc + (String(owner).toLowerCase() === String(address).toLowerCase() ? 1 : 0);
-        }, 0);
-        setMyOwnedCount(count);
-      } catch {
-        setMyOwnedCount(0);
-      }
-    };
-    loadOwned();
-  }, [address, totalSupply]);
+  // Callback to receive NFT counts from DashboardGrid (memoized to prevent re-renders)
+  const handleNFTCountsUpdate = useCallback((total: number, owned: number) => {
+    setNftCounts({ total, owned });
+    console.log('📊 Dashboard stats updated:', { total, owned });
+  }, []);
 
   if (!connected) {
     return (
@@ -140,22 +92,26 @@ export default function DashboardPage() {
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>
           </div>
           
-          {/* Total NFTs Minted (Blockchain) - NEW */}
+          {/* Total NFTs Minted (All contracts) */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total Minted</p>
             <p className="text-3xl font-bold text-green-500">
-              {totalMinted}
+              {nftCounts.total}
             </p>
-            <p className="text-xs text-gray dark:text-smokeWhite mt-1">On-Chain</p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">
+              {areContractsDeployed() ? 'On-Chain' : 'Demo Mode'}
+            </p>
           </div>
           
-          {/* My NFTs (On-Chain) */}
+          {/* My NFTs (All contracts) */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">My NFTs</p>
             <p className="text-3xl font-bold text-lightBlue">
-              {myOwnedCount}
+              {nftCounts.owned}
             </p>
-            <p className="text-xs text-gray dark:text-smokeWhite mt-1">Owned (On-Chain)</p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">
+              {areContractsDeployed() ? 'On-Chain' : 'Demo Mode'}
+            </p>
           </div>
           
           {/* Listed for Sale */}
@@ -186,10 +142,9 @@ export default function DashboardPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <DashboardGrid />
+          <DashboardGrid onCountsUpdate={handleNFTCountsUpdate} />
         </motion.div>
       </div>
     </div>
   );
 }
-

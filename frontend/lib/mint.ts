@@ -87,7 +87,7 @@ export async function mintNFT(
       abi: NFT_ABI,
       functionName: 'publicMint',
       args: [metadataURI],
-      value: 0n, // Free mint for now
+      value: BigInt(0), // Free mint for now
     });
 
     console.log('⛓️ Transaction submitted:', txHash);

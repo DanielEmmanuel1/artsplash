@@ -12,12 +12,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const { appMode } = useSettings();
 
-  const baseNavLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/explore', label: 'Explore' },
-    { href: '/mint', label: 'Mint' },
-    { href: '/dashboard', label: 'Dashboard' },
-  ];
+      const baseNavLinks = [
+        { href: '/mint', label: 'Mint' },
+        { href: '/explore', label: 'Explore' },
+        { href: '/dashboard', label: 'Dashboard' },
+        { href: '/docs', label: 'Docs' },
+      ];
 
   // Add test-wallet only in developer mode
   const navLinks = appMode === 'developer' 
@@ -34,7 +34,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/mint" className="flex items-center">
             <motion.h1
               className="text-3xl font-cursive bg-linear-to-r from-lightBlue to-blue bg-clip-text text-transparent drop-shadow-lg"
               whileHover={{ scale: 1.05 }}
