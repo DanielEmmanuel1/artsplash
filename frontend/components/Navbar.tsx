@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import ConnectWalletButton from './wallet/ConnectWalletButton';
 import SettingsMenu from './SettingsMenu';
+import ThemeToggle from './ThemeToggle';
 import { useSettings } from '@/lib/settingsStore';
 
 export default function Navbar() {
@@ -70,8 +71,9 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right Side: Settings + Wallet */}
+          {/* Right Side: Theme Toggle + Settings + Wallet */}
           <div className="flex items-center space-x-3">
+            <ThemeToggle />
             <SettingsMenu />
             <ConnectWalletButton />
           </div>
