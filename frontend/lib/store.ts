@@ -9,6 +9,8 @@ export interface NFT {
   owner: string;
   isListed: boolean;
   createdAt: Date;
+  tokenId?: number;
+  txHash?: string;
 }
 
 interface AppState {
