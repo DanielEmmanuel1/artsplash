@@ -39,25 +39,9 @@ export const wagmiConfig = createConfig({
       appLogoUrl: '/logo.png', // Optional: add your logo
     }),
     
-    // WalletConnect (only if project ID is provided)
-    ...(projectId
-      ? [
-          walletConnect({
-            projectId,
-            metadata: {
-              name: appName,
-              description: 'Create, mint, and trade NFTs on Avalanche',
-              url: typeof window !== 'undefined' ? window.location.origin : '',
-              icons: ['https://avatars.githubusercontent.com/u/37784886'],
-            },
-            showQrModal: true,
-            qrModalOptions: {
-              enableAnalytics: false, // Disable analytics to prevent errors without valid project ID
-            },
-          }),
-        ]
-      : []),
-  ],
+    // WalletConnect - ONLY include if valid project ID exists
+    // Get free project ID at: https://cloud.walletconnect.com
+  ].filter(Boolean),
   transports: {
     [avalancheFuji.id]: http(),
     [avalancheMainnet.id]: http(),
