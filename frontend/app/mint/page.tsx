@@ -5,7 +5,7 @@ import UploadForm from '@/components/UploadForm';
 
 export default function MintPage() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-white via-smokeWhite to-lightBlue/10 dark:from-metallicBlack dark:via-gray/20 dark:to-blue/10 py-12 px-4">
+    <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

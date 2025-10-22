@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-linear-to-br from-white via-smokeWhite to-lightBlue/10 dark:from-metallicBlack dark:via-gray/20 dark:to-blue/10 py-20 px-4">
+      <section className="relative overflow-hidden bg-smokeWhite dark:bg-gray/10 py-20 px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -91,33 +91,6 @@ export default function Home() {
             </Link>
           </motion.div>
         </motion.div>
-
-        {/* Animated Background Elements */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute -top-20 -left-20 w-96 h-96 bg-lightBlue/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 1,
-          }}
-          className="absolute -bottom-20 -right-20 w-96 h-96 bg-blue/20 rounded-full blur-3xl"
-        />
       </section>
 
       {/* Features Section */}
@@ -161,7 +134,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-linear-to-br from-lightBlue to-blue">
+      <section className="py-20 px-4 bg-lightBlue dark:bg-blue">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
