@@ -104,32 +104,64 @@ export default function SettingsMenu() {
                     </div>
                   </div>
 
-                  {/* Theme */}
+                  {/* Theme Toggle */}
                   <div>
-                    <label className="text-sm font-semibold text-metallicBlack dark:text-white flex items-center mb-3">
-                      {themeMode === 'light' ? (
-                        <Sun size={16} className="mr-2 text-lightBlue" />
-                      ) : (
-                        <Moon size={16} className="mr-2 text-lightBlue" />
-                      )}
-                      Theme
+                    <label className="text-sm font-semibold text-metallicBlack dark:text-white flex items-center justify-between mb-3">
+                      <span className="flex items-center">
+                        {themeMode === 'light' ? (
+                          <Sun size={16} className="mr-2 text-lightBlue" />
+                        ) : (
+                          <Moon size={16} className="mr-2 text-lightBlue" />
+                        )}
+                        Theme
+                      </span>
+                      <span className="text-xs text-gray dark:text-smokeWhite">
+                        {themeMode === 'light' ? 'Light' : 'Dark'}
+                      </span>
                     </label>
-                    <div className="space-y-2">
-                      <ModeOption
-                        icon={<Sun size={20} />}
-                        title="Light Mode"
-                        description="Bright and clean interface"
-                        isActive={themeMode === 'light'}
-                        onClick={() => useSettings.getState().setThemeMode('light')}
-                      />
-                      <ModeOption
-                        icon={<Moon size={20} />}
-                        title="Dark Mode"
-                        description="Easy on the eyes in low light"
-                        isActive={themeMode === 'dark'}
-                        onClick={() => useSettings.getState().setThemeMode('dark')}
-                      />
-                    </div>
+                    
+                    {/* Toggle Switch */}
+                    <button
+                      onClick={toggleTheme}
+                      className="w-full p-4 rounded-lg border-2 border-gray/20 dark:border-gray/30 hover:border-lightBlue/50 transition-all bg-smokeWhite/50 dark:bg-gray/10"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Sun size={20} className={themeMode === 'light' ? 'text-lightBlue' : 'text-gray'} />
+                          <span className={`text-sm font-medium ${
+                            themeMode === 'light' 
+                              ? 'text-lightBlue' 
+                              : 'text-gray dark:text-smokeWhite'
+                          }`}>
+                            Light
+                          </span>
+                        </div>
+                        
+                        {/* Toggle Switch */}
+                        <div className="relative">
+                          <div className={`w-14 h-7 rounded-full transition-colors ${
+                            themeMode === 'dark' ? 'bg-lightBlue' : 'bg-gray/30'
+                          }`}>
+                            <motion.div
+                              className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md"
+                              animate={{ x: themeMode === 'dark' ? 28 : 0 }}
+                              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-3">
+                          <span className={`text-sm font-medium ${
+                            themeMode === 'dark' 
+                              ? 'text-lightBlue' 
+                              : 'text-gray dark:text-smokeWhite'
+                          }`}>
+                            Dark
+                          </span>
+                          <Moon size={20} className={themeMode === 'dark' ? 'text-lightBlue' : 'text-gray'} />
+                        </div>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </motion.div>

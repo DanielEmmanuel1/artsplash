@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { WalletProvider } from "@/lib/wallet/WalletProvider";
 import NetworkBanner from "@/components/wallet/NetworkBanner";
 import ThemeProvider from "@/components/ThemeProvider";
+import ModeRedirectHandler from "@/components/ModeRedirectHandler";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,6 +35,7 @@ export default function RootLayout({
       >
         <WalletProvider>
           <ThemeProvider>
+            <ModeRedirectHandler />
             <NetworkBanner />
             <Navbar />
             <main className="grow">{children}</main>
