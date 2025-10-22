@@ -87,7 +87,6 @@ export async function mintNFT(
       abi: NFT_ABI,
       functionName: 'safeMint',
       args: [creator as `0x${string}`, metadataURI],
-      gas: 500000n, // Explicit gas limit
     });
 
     console.log('⛓️ Transaction submitted:', txHash);
