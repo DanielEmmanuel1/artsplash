@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import hre from "hardhat";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -7,11 +7,11 @@ async function main() {
   console.log("🚀 Starting deployment to Avalanche...\n");
 
   // Get deployer account
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
   console.log("📝 Deploying contracts with account:", deployer.address);
   
-  const balance = await ethers.provider.getBalance(deployer.address);
-  console.log("💰 Account balance:", ethers.formatEther(balance), "AVAX\n");
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  console.log("💰 Account balance:", hre.ethers.formatEther(balance), "AVAX\n");
 
   // Deployment parameters
   const ADMIN_ADDRESS = deployer.address; // Admin will be the deployer
@@ -30,7 +30,7 @@ async function main() {
 
   // Deploy NFT Contract
   console.log("🎨 Deploying ArtisticSplashNFT...");
-  const ArtisticSplashNFT = await ethers.getContractFactory("ArtisticSplashNFT");
+  const ArtisticSplashNFT = await hre.ethers.getContractFactory("ArtisticSplashNFT");
   const nft = await ArtisticSplashNFT.deploy(
     ADMIN_ADDRESS,
     ROYALTY_RECEIVER,
@@ -44,7 +44,7 @@ async function main() {
 
   // Deploy Marketplace Contract
   console.log("🏪 Deploying ArtisticSplashMarketplace...");
-  const ArtisticSplashMarketplace = await ethers.getContractFactory("ArtisticSplashMarketplace");
+  const ArtisticSplashMarketplace = await hre.ethers.getContractFactory("ArtisticSplashMarketplace");
   const marketplace = await ArtisticSplashMarketplace.deploy(
     PLATFORM_FEE_BPS,
     FEE_RECIPIENT
@@ -71,8 +71,8 @@ async function main() {
   // Verification info
   console.log("📄 Deployment Summary:");
   console.log("=" .repeat(60));
-  console.log("Network:", (await ethers.provider.getNetwork()).name);
-  console.log("Chain ID:", (await ethers.provider.getNetwork()).chainId);
+  console.log("Network:", (await hre.ethers.provider.getNetwork()).name);
+  console.log("Chain ID:", (await hre.ethers.provider.getNetwork()).chainId);
   console.log();
   console.log("ArtisticSplashNFT:");
   console.log("  Address:", nftAddress);
@@ -89,8 +89,8 @@ async function main() {
   // Save deployment addresses to file
   const fs = require("fs");
   const deploymentInfo = {
-    network: (await ethers.provider.getNetwork()).name,
-    chainId: Number((await ethers.provider.getNetwork()).chainId),
+    network: (await hre.ethers.provider.getNetwork()).name,
+    chainId: Number((await hre.ethers.provider.getNetwork()).chainId),
     timestamp: new Date().toISOString(),
     contracts: {
       ArtisticSplashNFT: {
