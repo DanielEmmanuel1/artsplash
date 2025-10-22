@@ -21,7 +21,7 @@ export default function NFTCard({
     <motion.div
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl shadow-md overflow-hidden border border-gray/10 hover:shadow-xl"
+      className="bg-white dark:bg-gray/20 rounded-xl shadow-md overflow-hidden border border-gray/10 dark:border-gray/30 hover:shadow-xl"
     >
       {/* Image */}
       <div className="relative h-64 w-full bg-smokeWhite">
@@ -36,10 +36,10 @@ export default function NFTCard({
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-xl font-semibold text-metallicBlack mb-2 truncate">
+        <h3 className="text-xl font-semibold text-metallicBlack dark:text-white mb-2 truncate">
           {nft.name}
         </h3>
-        <p className="text-gray text-sm mb-3 line-clamp-2 leading-relaxed">
+        <p className="text-gray dark:text-smokeWhite text-sm mb-3 line-clamp-2 leading-relaxed">
           {nft.description}
         </p>
 
@@ -50,7 +50,7 @@ export default function NFTCard({
                 {nft.price} AVAX
               </p>
             )}
-            <p className="text-gray text-xs">
+            <p className="text-gray dark:text-smokeWhite text-xs">
               Owner: {nft.owner.slice(0, 6)}...{nft.owner.slice(-4)}
             </p>
           </div>

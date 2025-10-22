@@ -13,7 +13,7 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="min-h-screen bg-smokeWhite py-12 px-4">
+    <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -21,10 +21,10 @@ export default function ExplorePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-metallicBlack mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-metallicBlack dark:text-white mb-4">
             Explore NFTs
           </h1>
-          <p className="text-gray text-lg">
+          <p className="text-gray dark:text-smokeWhite text-lg">
             Discover unique digital art from creators around the world
           </p>
         </motion.div>
@@ -36,29 +36,29 @@ export default function ExplorePage() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
         >
-          <div className="bg-white rounded-lg p-6 text-center shadow-md">
+          <div className="bg-white dark:bg-gray/20 rounded-lg p-6 text-center shadow-md border border-transparent dark:border-gray/30">
             <p className="text-3xl font-bold text-lightBlue mb-1">
               {allNFTs.length}
             </p>
-            <p className="text-gray text-sm">Total NFTs</p>
+            <p className="text-gray dark:text-smokeWhite text-sm">Total NFTs</p>
           </div>
-          <div className="bg-white rounded-lg p-6 text-center shadow-md">
+          <div className="bg-white dark:bg-gray/20 rounded-lg p-6 text-center shadow-md border border-transparent dark:border-gray/30">
             <p className="text-3xl font-bold text-lightBlue mb-1">
               {allNFTs.filter((nft) => nft.isListed).length}
             </p>
-            <p className="text-gray text-sm">Listed</p>
+            <p className="text-gray dark:text-smokeWhite text-sm">Listed</p>
           </div>
-          <div className="bg-white rounded-lg p-6 text-center shadow-md">
+          <div className="bg-white dark:bg-gray/20 rounded-lg p-6 text-center shadow-md border border-transparent dark:border-gray/30">
             <p className="text-3xl font-bold text-lightBlue mb-1">
               {new Set(allNFTs.map((nft) => nft.owner)).size}
             </p>
-            <p className="text-gray text-sm">Creators</p>
+            <p className="text-gray dark:text-smokeWhite text-sm">Creators</p>
           </div>
-          <div className="bg-white rounded-lg p-6 text-center shadow-md">
+          <div className="bg-white dark:bg-gray/20 rounded-lg p-6 text-center shadow-md border border-transparent dark:border-gray/30">
             <p className="text-3xl font-bold text-lightBlue mb-1">
               {(allNFTs.reduce((sum, nft) => sum + (nft.price || 0), 0) / allNFTs.length).toFixed(1)}
             </p>
-            <p className="text-gray text-sm">Avg. Price (AVAX)</p>
+            <p className="text-gray dark:text-smokeWhite text-sm">Avg. Price (AVAX)</p>
           </div>
         </motion.div>
 
@@ -69,7 +69,7 @@ export default function ExplorePage() {
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <p className="text-gray text-lg">No NFTs available yet</p>
+            <p className="text-gray dark:text-smokeWhite text-lg">No NFTs available yet</p>
           </motion.div>
         ) : (
           <motion.div

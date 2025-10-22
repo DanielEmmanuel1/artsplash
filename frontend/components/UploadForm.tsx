@@ -85,10 +85,10 @@ export default function UploadForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 border border-gray/20">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray/20 rounded-xl shadow-lg p-8 border border-gray/20 dark:border-gray/30">
         {/* Image Upload */}
         <div className="mb-6">
-          <label className="block text-metallicBlack font-semibold mb-2">
+          <label className="block text-metallicBlack dark:text-white font-semibold mb-2">
             Upload Image (PNG or JPEG)
           </label>
 
@@ -96,11 +96,11 @@ export default function UploadForm() {
             <motion.div
               whileHover={{ scale: 1.02 }}
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-gray/30 rounded-lg p-12 text-center cursor-pointer hover:border-lightBlue transition-colors"
+              className="border-2 border-dashed border-gray/30 dark:border-gray/40 rounded-lg p-12 text-center cursor-pointer hover:border-lightBlue transition-colors bg-smokeWhite/50 dark:bg-metallicBlack/50"
             >
-              <Upload className="mx-auto mb-4 text-gray" size={48} />
-              <p className="text-gray">Click to upload or drag and drop</p>
-              <p className="text-gray text-sm mt-2">PNG or JPEG (MAX. 10MB)</p>
+              <Upload className="mx-auto mb-4 text-gray dark:text-smokeWhite" size={48} />
+              <p className="text-gray dark:text-smokeWhite">Click to upload or drag and drop</p>
+              <p className="text-gray dark:text-smokeWhite text-sm mt-2">PNG or JPEG (MAX. 10MB)</p>
             </motion.div>
           ) : (
             <motion.div
@@ -136,7 +136,7 @@ export default function UploadForm() {
 
         {/* NFT Name */}
         <div className="mb-6">
-          <label className="block text-metallicBlack font-semibold mb-2">
+          <label className="block text-metallicBlack dark:text-white font-semibold mb-2">
             NFT Name
           </label>
           <input
@@ -144,13 +144,13 @@ export default function UploadForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter NFT name"
-            className="w-full px-4 py-3 border border-gray/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightBlue"
+            className="w-full px-4 py-3 border border-gray/30 dark:border-gray/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightBlue bg-white dark:bg-metallicBlack/50 text-metallicBlack dark:text-white placeholder-gray/50 dark:placeholder-smokeWhite/50"
           />
         </div>
 
         {/* Description */}
         <div className="mb-6">
-          <label className="block text-metallicBlack font-semibold mb-2">
+          <label className="block text-metallicBlack dark:text-white font-semibold mb-2">
             Description
           </label>
           <textarea
@@ -158,7 +158,7 @@ export default function UploadForm() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe your NFT"
             rows={4}
-            className="w-full px-4 py-3 border border-gray/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightBlue resize-none"
+            className="w-full px-4 py-3 border border-gray/30 dark:border-gray/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightBlue resize-none bg-white dark:bg-metallicBlack/50 text-metallicBlack dark:text-white placeholder-gray/50 dark:placeholder-smokeWhite/50"
           />
         </div>
 
@@ -202,7 +202,7 @@ export default function UploadForm() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-white rounded-xl p-8 max-w-md text-center border border-gray/20 shadow-2xl"
+              className="bg-white dark:bg-gray/20 rounded-xl p-8 max-w-md text-center border border-gray/20 dark:border-gray/30 shadow-2xl"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -211,10 +211,10 @@ export default function UploadForm() {
               >
                 <CheckCircle className="mx-auto text-green-500 mb-4" size={64} />
               </motion.div>
-              <h2 className="text-2xl font-bold text-metallicBlack mb-2">
+              <h2 className="text-2xl font-bold text-metallicBlack dark:text-white mb-2">
                 NFT Minted Successfully!
               </h2>
-              <p className="text-gray mb-6">
+              <p className="text-gray dark:text-smokeWhite mb-6">
                 Your NFT has been created and added to your dashboard
               </p>
               <motion.button

@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-linear-to-br from-white via-smokeWhite to-lightBlue/10 py-20 px-4">
+      <section className="relative overflow-hidden bg-linear-to-br from-white via-smokeWhite to-lightBlue/10 dark:from-metallicBlack dark:via-gray/20 dark:to-blue/10 py-20 px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -46,7 +46,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-5xl md:text-7xl font-bold text-blue mb-6"
+            className="text-5xl md:text-7xl font-bold text-blue dark:text-lightBlue mb-6"
           >
             Welcome to{' '}
             <span className="font-cursive bg-linear-to-r from-lightBlue to-blue bg-clip-text text-transparent">
@@ -58,7 +58,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-xl md:text-2xl text-metallicBlack/80 max-w-3xl mx-auto mb-10 leading-relaxed"
+            className="text-xl md:text-2xl text-metallicBlack/80 dark:text-smokeWhite/90 max-w-3xl mx-auto mb-10 leading-relaxed"
           >
             Transform your creative vision into NFTs. Mint, collect, and trade
             unique digital art on the Avalanche blockchain.
@@ -121,13 +121,13 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-20 px-4 bg-white dark:bg-gray/10">
         <div className="max-w-6xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-center text-blue mb-16"
+            className="text-4xl md:text-5xl font-bold text-center text-blue dark:text-lightBlue mb-16"
           >
             How It Works
           </motion.h2>
@@ -141,7 +141,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2, duration: 0.5 }}
                 whileHover={{ y: -10 }}
-                className="bg-smokeWhite rounded-xl p-8 text-center shadow-md hover:shadow-xl transition-shadow"
+                className="bg-smokeWhite dark:bg-metallicBlack/80 rounded-xl p-8 text-center shadow-md hover:shadow-xl transition-shadow border border-transparent dark:border-gray/30"
               >
                 <motion.div
                   whileHover={{ rotate: 360 }}
@@ -150,10 +150,10 @@ export default function Home() {
                 >
                   {feature.icon}
                 </motion.div>
-                <h3 className="text-2xl font-bold text-blue mb-3">
+                <h3 className="text-2xl font-bold text-blue dark:text-lightBlue mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray">{feature.description}</p>
+                <p className="text-gray dark:text-smokeWhite">{feature.description}</p>
               </motion.div>
             ))}
           </div>
