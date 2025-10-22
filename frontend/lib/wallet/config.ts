@@ -39,7 +39,7 @@ export const wagmiConfig = createConfig({
       appLogoUrl: '/logo.png', // Optional: add your logo
     }),
     
-    // WalletConnect
+    // WalletConnect (only if project ID is provided)
     ...(projectId
       ? [
           walletConnect({
@@ -51,6 +51,9 @@ export const wagmiConfig = createConfig({
               icons: ['https://avatars.githubusercontent.com/u/37784886'],
             },
             showQrModal: true,
+            qrModalOptions: {
+              enableAnalytics: false, // Disable analytics to prevent errors without valid project ID
+            },
           }),
         ]
       : []),
