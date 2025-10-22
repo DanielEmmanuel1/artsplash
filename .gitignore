@@ -15,6 +15,10 @@
 
 # Typechain output
 /types
+/typechain-types
+
+# Deployment records (contain addresses)
+/deployments
 
 # Hardhat coverage reports
 /coverage
