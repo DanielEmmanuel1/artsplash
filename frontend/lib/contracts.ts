@@ -10,6 +10,14 @@ export const CONTRACTS = {
   MARKETPLACE_ADDRESS: process.env.NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000',
 } as const;
 
+// Debug logging
+if (typeof window !== 'undefined') {
+  console.log('🔍 Contract Addresses Loaded:');
+  console.log('NFT:', CONTRACTS.NFT_ADDRESS);
+  console.log('Marketplace:', CONTRACTS.MARKETPLACE_ADDRESS);
+  console.log('Deployed:', CONTRACTS.NFT_ADDRESS !== '0x0000000000000000000000000000000000000000');
+}
+
 // Simplified ABIs for minting (full ABIs will be generated via TypeChain)
 export const NFT_ABI = [
   // safeMint function
