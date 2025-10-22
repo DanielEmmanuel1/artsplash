@@ -24,7 +24,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy:fuji": "hardhat run scripts/deploy.ts --network fuji",
+    "deploy:fuji": "node scripts/deploy-direct.ts",
     "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
     "typechain": "hardhat typechain"
   }

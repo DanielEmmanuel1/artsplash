@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface NFT {
   id: string;
@@ -9,6 +10,9 @@ export interface NFT {
   owner: string;
   isListed: boolean;
   createdAt: Date;
+  tokenId?: number;
+  txHash?: string;
+  contractAddress?: string; // Added for multi-contract support
 }
 
 interface AppState {
@@ -100,65 +104,76 @@ const mockNFTs: NFT[] = [
   },
 ];
 
-export const useStore = create<AppState>((set) => ({
-  // Initial state
-  isWalletConnected: false,
-  walletAddress: null,
-  userNFTs: [],
-  allNFTs: mockNFTs,
-
-  // Wallet actions
-  connectWallet: () => {
-    const mockAddress = generateMockAddress();
-    set({
-      isWalletConnected: true,
-      walletAddress: mockAddress,
-    });
-  },
-
-  disconnectWallet: () => {
-    set({
+export const useStore = create<AppState>()(
+  persist(
+    (set) => ({
+      // Initial state
       isWalletConnected: false,
       walletAddress: null,
-    });
-  },
+      userNFTs: [],
+      allNFTs: mockNFTs,
 
-  // NFT actions
-  addNFT: (nft) => {
-    set((state) => {
-      const newNFT: NFT = {
-        ...nft,
-        id: `nft-${Date.now()}`,
-        owner: state.walletAddress || 'Unknown',
-        createdAt: new Date(),
-      };
-      return {
-        userNFTs: [...state.userNFTs, newNFT],
-        allNFTs: [...state.allNFTs, newNFT],
-      };
-    });
-  },
+      // Wallet actions
+      connectWallet: () => {
+        const mockAddress = generateMockAddress();
+        set({
+          isWalletConnected: true,
+          walletAddress: mockAddress,
+        });
+      },
 
-  listNFT: (id, price) => {
-    set((state) => ({
-      userNFTs: state.userNFTs.map((nft) =>
-        nft.id === id ? { ...nft, isListed: true, price } : nft
-      ),
-      allNFTs: state.allNFTs.map((nft) =>
-        nft.id === id ? { ...nft, isListed: true, price } : nft
-      ),
-    }));
-  },
+      disconnectWallet: () => {
+        set({
+          isWalletConnected: false,
+          walletAddress: null,
+        });
+      },
 
-  unlistNFT: (id) => {
-    set((state) => ({
-      userNFTs: state.userNFTs.map((nft) =>
-        nft.id === id ? { ...nft, isListed: false, price: undefined } : nft
-      ),
-      allNFTs: state.allNFTs.map((nft) =>
-        nft.id === id ? { ...nft, isListed: false, price: undefined } : nft
-      ),
-    }));
-  },
-}));
+      // NFT actions
+      addNFT: (nft) => {
+        set((state) => {
+          const newNFT: NFT = {
+            ...nft,
+            id: `nft-${Date.now()}`,
+            owner: state.walletAddress || 'Unknown',
+            createdAt: new Date(),
+          };
+          return {
+            userNFTs: [...state.userNFTs, newNFT],
+            allNFTs: [...state.allNFTs, newNFT],
+          };
+        });
+      },
+
+      listNFT: (id, price) => {
+        set((state) => ({
+          userNFTs: state.userNFTs.map((nft) =>
+            nft.id === id ? { ...nft, isListed: true, price } : nft
+          ),
+          allNFTs: state.allNFTs.map((nft) =>
+            nft.id === id ? { ...nft, isListed: true, price } : nft
+          ),
+        }));
+      },
+
+      unlistNFT: (id) => {
+        set((state) => ({
+          userNFTs: state.userNFTs.map((nft) =>
+            nft.id === id ? { ...nft, isListed: false, price: undefined } : nft
+          ),
+          allNFTs: state.allNFTs.map((nft) =>
+            nft.id === id ? { ...nft, isListed: false, price: undefined } : nft
+          ),
+        }));
+      },
+    }),
+    {
+      name: 'artistic-splash-store',
+      partialize: (state) => ({
+        userNFTs: state.userNFTs,
+        allNFTs: state.allNFTs,
+      }),
+    }
+  )
+);
 

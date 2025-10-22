@@ -2,11 +2,15 @@
 
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, X, CheckCircle } from 'lucide-react';
+import { Upload, X, CheckCircle, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { useWallet } from '@/lib/wallet/useWallet';
+import { useAdmin } from '@/lib/useAdmin';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { mintNFT, validateMintRequirements, type MintStatus } from '@/lib/mint';
+import { validateImageFile, ipfsToHttp } from '@/lib/ipfs';
+import { areContractsDeployed, getDeploymentInstructions } from '@/lib/contracts';
 
 export default function UploadForm() {
   const [name, setName] = useState('');
@@ -15,21 +19,38 @@ export default function UploadForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [mintStatus, setMintStatus] = useState<MintStatus | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [tokenId, setTokenId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addNFT } = useStore();
-  const { connected } = useWallet();
+  const { connected, address } = useWallet();
+  const { isAdmin, isMinter } = useAdmin();
   const router = useRouter();
+  
+  const contractsDeployed = areContractsDeployed();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      alert(validation.error || 'Invalid file');
+      return;
     }
+
+    setImageFile(file);
+    setError(null);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveImage = () => {
@@ -40,51 +61,226 @@ export default function UploadForm() {
     }
   };
 
+  const handleTestMint = async () => {
+    if (!connected || !address) {
+      setError('Please connect your wallet first');
+      return;
+    }
+
+    setError(null);
+    setMintStatus(null);
+    setIsLoading(true);
+
+    try {
+      console.log('🧪 Starting test mint...');
+      
+      setMintStatus({
+        stage: 'uploading',
+        message: 'Creating test NFT...',
+      });
+
+      // Simulate some processing time
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      setMintStatus({
+        stage: 'complete',
+        message: 'Test NFT created successfully!',
+      });
+
+      // Add test NFT to store
+      const testNFT = {
+        name: `Test NFT ${Date.now()}`,
+        description: 'This is a test NFT created for debugging purposes',
+        image: 'https://picsum.photos/seed/test/400/400',
+        isListed: false,
+      };
+
+      console.log('🧪 Adding test NFT to store:', testNFT);
+      addNFT(testNFT);
+      console.log('🧪 Test NFT added to store');
+
+      setShowSuccess(true);
+      
+      // Reset form
+      setTimeout(() => {
+        setMintStatus(null);
+        setIsLoading(false);
+      }, 1000);
+    } catch (err: any) {
+      console.error('Test mint error:', err);
+      setError(err.message || 'Test minting failed');
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setMintStatus(null);
 
-    if (!connected) {
-      alert('Please connect your wallet first!');
+    // Validate requirements
+    const validation = validateMintRequirements(imageFile, name, description, connected);
+    if (!validation.valid) {
+      setError(validation.error || 'Validation failed');
       return;
     }
 
-    if (!name || !description || !imagePreview) {
-      alert('Please fill all fields and upload an image!');
-      return;
-    }
+    if (!address || !imageFile) return;
 
     setIsLoading(true);
 
-    // Simulate minting delay
-    setTimeout(() => {
-      addNFT({
-        name,
-        description,
-        image: imagePreview,
-        isListed: false,
-      });
+    try {
+      if (contractsDeployed) {
+        // Real blockchain minting
+        const result = await mintNFT(
+          imageFile,
+          name,
+          description,
+          address,
+          (status) => {
+            setMintStatus(status);
+            if (status.txHash) {
+              setTxHash(status.txHash);
+            }
+            if (status.tokenId) {
+              setTokenId(status.tokenId);
+            }
+          }
+        );
 
-      setIsLoading(false);
-      setShowSuccess(true);
+        if (result.success) {
+          console.log('✅ Minting successful, adding to store:', {
+            name,
+            description,
+            tokenId: result.tokenId,
+            txHash: result.txHash,
+          });
 
-      // Reset form
-      setName('');
-      setDescription('');
-      setImageFile(null);
-      setImagePreview(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+          // Add to local store for dashboard display
+          addNFT({
+            name,
+            description,
+            image: result.imageHash ? ipfsToHttp(result.imageHash) : imagePreview!,
+            isListed: false,
+            tokenId: result.tokenId,
+            txHash: result.txHash,
+          });
+
+          console.log('✅ NFT added to store');
+
+          setShowSuccess(true);
+          
+          // Reset form
+          setTimeout(() => {
+            setName('');
+            setDescription('');
+            setImageFile(null);
+            setImagePreview(null);
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+            }
+            setMintStatus(null);
+          }, 1000);
+        } else {
+          setError(result.error || 'Minting failed');
+        }
+      } else {
+        // Demo mode - just add to local store
+        setMintStatus({
+          stage: 'uploading',
+          message: 'Creating NFT in demo mode...',
+        });
+
+        // Simulate some processing time
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        setMintStatus({
+          stage: 'complete',
+          message: 'NFT created successfully in demo mode!',
+        });
+
+        // Add to local store
+        console.log('✅ Demo mode - adding NFT to store:', {
+          name,
+          description,
+        });
+
+        addNFT({
+          name,
+          description,
+          image: imagePreview!,
+          isListed: false,
+        });
+
+        console.log('✅ Demo NFT added to store');
+
+        setShowSuccess(true);
+        
+        // Reset form
+        setTimeout(() => {
+          setName('');
+          setDescription('');
+          setImageFile(null);
+          setImagePreview(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+          setMintStatus(null);
+        }, 1000);
       }
-
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setShowSuccess(false);
-      }, 3000);
-    }, 2000);
+    } catch (err: any) {
+      console.error('Minting error:', err);
+      setError(err.message || 'An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto">
+          {/* User Status Indicator */}
+          {connected && contractsDeployed && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 bg-white dark:bg-gray/20 rounded-lg p-4 border border-gray/20 dark:border-gray/30"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${isAdmin ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                  <span className="text-sm font-medium text-metallicBlack dark:text-white">
+                    {isAdmin ? '👑 Admin User' : '👤 Regular User'}
+                  </span>
+                </div>
+                <div className="text-xs text-gray dark:text-smokeWhite">
+                  {isAdmin ? 'Unlimited minting' : '2 NFTs per 2 hours'}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Contract Deployment Warning */}
+          {!contractsDeployed && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4"
+        >
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="text-yellow-500 flex-shrink-0 mt-1" size={20} />
+            <div>
+              <h3 className="font-semibold text-yellow-700 dark:text-yellow-400 mb-1">
+                Contracts Not Deployed
+              </h3>
+              <p className="text-sm text-yellow-600 dark:text-yellow-300">
+                Smart contracts haven't been deployed yet. For now, you can test the UI with mock mode.
+                See <code className="bg-yellow-500/20 px-1 rounded">CONTRACTS_SETUP.md</code> for deployment instructions.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       <form onSubmit={handleSubmit} className="bg-white dark:bg-gray/20 rounded-xl shadow-lg p-8 border border-gray/20 dark:border-gray/30">
         {/* Image Upload */}
         <div className="mb-6">
@@ -162,31 +358,107 @@ export default function UploadForm() {
           />
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 bg-red-500/10 border border-red-500/30 rounded-lg p-3"
+          >
+            <div className="flex items-start space-x-2">
+              <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={18} />
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Minting Status */}
+        {mintStatus && isLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 bg-lightBlue/10 border border-lightBlue/30 rounded-lg p-4"
+          >
+            <div className="flex items-start space-x-3">
+              <Loader2 className="text-lightBlue flex-shrink-0 animate-spin mt-1" size={20} />
+              <div className="flex-1">
+                <p className="font-semibold text-blue dark:text-lightBlue mb-1">
+                  {mintStatus.stage === 'uploading' && '📦 Uploading to IPFS...'}
+                  {mintStatus.stage === 'creating-metadata' && '📄 Creating metadata...'}
+                  {mintStatus.stage === 'minting' && '⛓️ Minting on blockchain...'}
+                  {mintStatus.stage === 'complete' && '✅ Complete!'}
+                </p>
+                <p className="text-sm text-gray dark:text-smokeWhite">
+                  {mintStatus.message}
+                </p>
+                {mintStatus.txHash && (
+                  <a
+                    href={`https://testnet.snowtrace.io/tx/${mintStatus.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-lightBlue hover:underline mt-1 inline-flex items-center"
+                  >
+                    View on Snowtrace <ExternalLink size={12} className="ml-1" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Submit Button */}
         <motion.button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || !connected}
           whileHover={{ scale: isLoading ? 1 : 1.02 }}
           whileTap={{ scale: isLoading ? 1 : 0.98 }}
           className={`w-full py-3 rounded-lg font-semibold text-white transition-colors ${
-            isLoading
+            isLoading || !connected
               ? 'bg-gray cursor-not-allowed'
               : 'bg-lightBlue hover:bg-blue'
           }`}
         >
-          {isLoading ? (
+          {!connected ? (
+            'Connect Wallet First'
+          ) : isLoading ? (
             <span className="flex items-center justify-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
-              />
-              Minting...
+              <Loader2 className="mr-2 animate-spin" size={20} />
+              {mintStatus?.stage === 'uploading' && 'Uploading...'}
+              {mintStatus?.stage === 'creating-metadata' && 'Creating Metadata...'}
+              {mintStatus?.stage === 'minting' && 'Minting...'}
+              {!mintStatus && 'Processing...'}
             </span>
+          ) : contractsDeployed ? (
+            isAdmin ? '🚀 Admin Mint (Unlimited)' : '🎨 Public Mint (2 per 2hrs)'
           ) : (
-            'Mint NFT'
+            '🎨 Create NFT (Demo Mode)'
           )}
         </motion.button>
+
+        {/* Test Mint Button for Debugging */}
+        {connected && (
+          <motion.button
+            type="button"
+            onClick={handleTestMint}
+            disabled={isLoading}
+            whileHover={{ scale: isLoading ? 1 : 1.02 }}
+            whileTap={{ scale: isLoading ? 1 : 0.98 }}
+            className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-200 mt-3 ${
+              isLoading
+                ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                : 'bg-yellow-500 hover:bg-yellow-600 text-white shadow-md hover:shadow-lg'
+            }`}
+          >
+            🧪 Test Mint (Debug) - Add NFT to Dashboard
+          </motion.button>
+        )}
+
+        {/* Gas Estimate */}
+        {connected && contractsDeployed && !isLoading && (
+          <p className="text-xs text-gray dark:text-smokeWhite text-center mt-2">
+            Estimated cost: ~0.01 AVAX (gas fees)
+          </p>
+        )}
       </form>
 
       {/* Success Modal */}
@@ -212,19 +484,52 @@ export default function UploadForm() {
                 <CheckCircle className="mx-auto text-green-500 mb-4" size={64} />
               </motion.div>
               <h2 className="text-2xl font-bold text-metallicBlack dark:text-white mb-2">
-                NFT Minted Successfully!
+                {contractsDeployed ? '🎉 NFT Minted Successfully!' : '✅ NFT Created!'}
               </h2>
-              <p className="text-gray dark:text-smokeWhite mb-6">
-                Your NFT has been created and added to your dashboard
+              <p className="text-gray dark:text-smokeWhite mb-4">
+                {contractsDeployed
+                  ? 'Your NFT has been minted on the Avalanche blockchain'
+                  : 'Your NFT has been created and added to your dashboard'}
               </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => router.push('/dashboard')}
-                className="bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium"
-              >
-                Go to Dashboard
-              </motion.button>
+              {tokenId && (
+                <div className="bg-lightBlue/10 border border-lightBlue/30 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-gray dark:text-smokeWhite mb-1">Token ID</p>
+                  <p className="text-xl font-bold text-lightBlue font-mono">
+                    #{tokenId}
+                  </p>
+                </div>
+              )}
+              <div className="space-y-2 mt-6">
+                {txHash && (
+                  <motion.a
+                    href={`https://testnet.snowtrace.io/tx/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-blue text-white px-6 py-3 rounded-lg hover:bg-blue/90 transition-colors font-medium flex items-center justify-center space-x-2"
+                  >
+                    <ExternalLink size={18} />
+                    <span>View Transaction on Snowtrace</span>
+                  </motion.a>
+                )}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => router.push('/dashboard')}
+                  className="w-full bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium"
+                >
+                  Go to Dashboard
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowSuccess(false)}
+                  className="w-full bg-gray/20 text-metallicBlack dark:text-white px-6 py-3 rounded-lg hover:bg-gray/30 transition-colors font-medium"
+                >
+                  Mint Another NFT
+                </motion.button>
+              </div>
             </motion.div>
           </motion.div>
         )}

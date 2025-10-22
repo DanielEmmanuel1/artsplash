@@ -17,7 +17,7 @@ const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Artistic Splash';
 
 if (!projectId) {
   console.warn(
-    '⚠️  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set. Get one at https://cloud.walletconnect.com'
+    '⚠️  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set. WalletConnect will be disabled. Get one at https://cloud.walletconnect.com'
   );
 }
 
@@ -39,22 +39,9 @@ export const wagmiConfig = createConfig({
       appLogoUrl: '/logo.png', // Optional: add your logo
     }),
     
-    // WalletConnect
-    ...(projectId
-      ? [
-          walletConnect({
-            projectId,
-            metadata: {
-              name: appName,
-              description: 'Create, mint, and trade NFTs on Avalanche',
-              url: typeof window !== 'undefined' ? window.location.origin : '',
-              icons: ['https://avatars.githubusercontent.com/u/37784886'],
-            },
-            showQrModal: true,
-          }),
-        ]
-      : []),
-  ],
+    // WalletConnect - ONLY include if valid project ID exists
+    // Get free project ID at: https://cloud.walletconnect.com
+  ].filter(Boolean),
   transports: {
     [avalancheFuji.id]: http(),
     [avalancheMainnet.id]: http(),

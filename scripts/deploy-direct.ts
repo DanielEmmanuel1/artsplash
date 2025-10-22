@@ -1,26 +1,58 @@
-import hre from "hardhat";
+import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load compiled contract artifacts
+const ArtisticSplashNFTArtifact = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "../artifacts/contracts/ArtisticSplashNFT.sol/ArtisticSplashNFT.json"),
+    "utf-8"
+  )
+);
+
+const ArtisticSplashMarketplaceArtifact = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "../artifacts/contracts/ArtisticSplashMarketplace.sol/ArtisticSplashMarketplace.json"),
+    "utf-8"
+  )
+);
 
 dotenv.config();
 
 async function main() {
-  console.log("🚀 Starting deployment to Avalanche...\n");
+  console.log("🚀 Starting deployment to Avalanche Fuji...\n");
 
-  // Get deployer account
-  const [deployer] = await hre.ethers.getSigners();
-  console.log("📝 Deploying contracts with account:", deployer.address);
+  // Setup provider and wallet
+  const RPC_URL = process.env.FUJI_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc";
+  const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
+  if (!PRIVATE_KEY) {
+    throw new Error("PRIVATE_KEY not found in .env");
+  }
+
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
+  console.log("📝 Deploying contracts with account:", wallet.address);
   
-  const balance = await hre.ethers.provider.getBalance(deployer.address);
-  console.log("💰 Account balance:", hre.ethers.formatEther(balance), "AVAX\n");
+  const balance = await provider.getBalance(wallet.address);
+  console.log("💰 Account balance:", ethers.formatEther(balance), "AVAX\n");
+
+  if (balance === 0n) {
+    throw new Error("Account has no AVAX for gas fees!");
+  }
 
   // Deployment parameters
-  const ADMIN_ADDRESS = deployer.address; // Admin will be the deployer
-  const ROYALTY_RECEIVER = deployer.address; // Can be changed later
+  const ADMIN_ADDRESS = wallet.address;
+  const ROYALTY_RECEIVER = wallet.address;
   const ROYALTY_BPS = 250; // 2.5% royalty
   const PLATFORM_FEE_BPS = 250; // 2.5% platform fee
-  const FEE_RECIPIENT = deployer.address; // Fee recipient (can be changed later)
+  const FEE_RECIPIENT = wallet.address;
 
   console.log("🔧 Deployment Configuration:");
   console.log("   Admin:", ADMIN_ADDRESS);
@@ -32,12 +64,19 @@ async function main() {
 
   // Deploy NFT Contract
   console.log("🎨 Deploying ArtisticSplashNFT...");
-  const ArtisticSplashNFT = await hre.ethers.getContractFactory("ArtisticSplashNFT");
-  const nft = await ArtisticSplashNFT.deploy(
+  const nftFactory = new ethers.ContractFactory(
+    ArtisticSplashNFTArtifact.abi,
+    ArtisticSplashNFTArtifact.bytecode,
+    wallet
+  );
+  
+  const nft = await nftFactory.deploy(
     ADMIN_ADDRESS,
     ROYALTY_RECEIVER,
     ROYALTY_BPS
   );
+  
+  console.log("⏳ Waiting for deployment transaction...");
   await nft.waitForDeployment();
   const nftAddress = await nft.getAddress();
   
@@ -46,39 +85,46 @@ async function main() {
 
   // Deploy Marketplace Contract
   console.log("🏪 Deploying ArtisticSplashMarketplace...");
-  const ArtisticSplashMarketplace = await hre.ethers.getContractFactory("ArtisticSplashMarketplace");
-  const marketplace = await ArtisticSplashMarketplace.deploy(
+  const marketplaceFactory = new ethers.ContractFactory(
+    ArtisticSplashMarketplaceArtifact.abi,
+    ArtisticSplashMarketplaceArtifact.bytecode,
+    wallet
+  );
+  
+  const marketplace = await marketplaceFactory.deploy(
     PLATFORM_FEE_BPS,
     FEE_RECIPIENT
   );
+  
+  console.log("⏳ Waiting for deployment transaction...");
   await marketplace.waitForDeployment();
   const marketplaceAddress = await marketplace.getAddress();
   
   console.log("✅ ArtisticSplashMarketplace deployed to:", marketplaceAddress);
   console.log();
 
-  // Grant MINTER_ROLE to deployer (for initial testing)
+  // Grant MINTER_ROLE to deployer
   console.log("🔑 Setting up roles...");
   const MINTER_ROLE = await nft.MINTER_ROLE();
+  const hasMinterRole = await nft.hasRole(MINTER_ROLE, wallet.address);
   
-  // Check if deployer already has MINTER_ROLE (they should via constructor)
-  const hasMinterRole = await nft.hasRole(MINTER_ROLE, deployer.address);
   if (!hasMinterRole) {
-    const tx = await nft.grantRole(MINTER_ROLE, deployer.address);
+    console.log("⏳ Granting MINTER_ROLE to deployer...");
+    const tx = await nft.grantRole(MINTER_ROLE, wallet.address);
     await tx.wait();
     console.log("✅ Granted MINTER_ROLE to deployer");
   } else {
     console.log("✅ Deployer already has MINTER_ROLE");
   }
-  
-  console.log("✅ Deployer has MINTER_ROLE by default");
   console.log();
+
+  // Get network info
+  const network = await provider.getNetwork();
 
   // Verification info
   console.log("📄 Deployment Summary:");
   console.log("=".repeat(60));
-  const network = await hre.ethers.provider.getNetwork();
-  console.log("Network:", network.name);
+  console.log("Network: Fuji Testnet");
   console.log("Chain ID:", network.chainId);
   console.log();
   console.log("ArtisticSplashNFT:");
@@ -93,19 +139,19 @@ async function main() {
 
   // Save deployment addresses to file
   const deploymentInfo = {
-    network: network.name,
+    network: "fuji",
     chainId: Number(network.chainId),
     timestamp: new Date().toISOString(),
     contracts: {
       ArtisticSplashNFT: {
         address: nftAddress,
-        deployer: deployer.address,
+        deployer: wallet.address,
         royaltyBps: ROYALTY_BPS,
         royaltyReceiver: ROYALTY_RECEIVER,
       },
       ArtisticSplashMarketplace: {
         address: marketplaceAddress,
-        deployer: deployer.address,
+        deployer: wallet.address,
         platformFeeBps: PLATFORM_FEE_BPS,
         feeRecipient: FEE_RECIPIENT,
       },
@@ -113,13 +159,13 @@ async function main() {
   };
 
   // Create deployments directory if it doesn't exist
-  const deploymentsDir = path.join(process.cwd(), "deployments");
+  const deploymentsDir = path.join(__dirname, "..", "deployments");
   if (!fs.existsSync(deploymentsDir)) {
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }
 
-  // Save to file with network name
-  const deploymentFile = path.join(deploymentsDir, `${network.name}-${Date.now()}.json`);
+  // Save to file
+  const deploymentFile = path.join(deploymentsDir, `fuji-${Date.now()}.json`);
   fs.writeFileSync(deploymentFile, JSON.stringify(deploymentInfo, null, 2));
   console.log("💾 Deployment info saved to:", deploymentFile);
   console.log();
@@ -134,7 +180,7 @@ async function main() {
   console.log("2. Restart your frontend dev server:");
   console.log("   cd frontend && npm run dev");
   console.log();
-  console.log("3. Verify contracts on Snowtrace (optional):");
+  console.log("3. Verify contracts on Snowtrace:");
   console.log(`   https://testnet.snowtrace.io/address/${nftAddress}`);
   console.log(`   https://testnet.snowtrace.io/address/${marketplaceAddress}`);
 }
@@ -146,3 +192,4 @@ main()
     console.error(error);
     process.exit(1);
   });
+

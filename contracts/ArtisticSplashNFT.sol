@@ -21,6 +21,15 @@ contract ArtisticSplashNFT is ERC721URIStorage, AccessControl, ERC2981, Reentran
     /// @dev Base URI for computing tokenURI (optional, can override per-token)
     string private _baseTokenURI;
 
+    // Public mint controls
+    uint256 public mintFeeWei = 0; // default free
+    uint256 public maxPerAddress = 2; // 2 per time window
+    uint256 public maxSupply = 0; // 0 = unlimited
+    bool public mintPaused = false;
+    uint256 public timeWindow = 2 hours; // 2 hours window
+    mapping(address => uint256) public mintedBy;
+    mapping(address => uint256) public lastMintTime;
+
     // Events
     event NFTMinted(address indexed to, uint256 indexed tokenId, string uri);
     event RoyaltyUpdated(address indexed receiver, uint96 feeNumerator);
@@ -46,6 +55,70 @@ contract ArtisticSplashNFT is ERC721URIStorage, AccessControl, ERC2981, Reentran
         _setDefaultRoyalty(royaltyReceiver, royaltyBps);
         
         _tokenIdCounter = 0;
+    }
+
+    /**
+     * @notice Open public mint with time-based limits (2 per 2 hours)
+     * @dev Anyone can mint when not paused and within limits
+     */
+    function publicMint(string calldata uri) external payable nonReentrant returns (uint256) {
+        require(!mintPaused, "Minting paused");
+        require(bytes(uri).length > 0, "URI cannot be empty");
+        if (mintFeeWei > 0) {
+            require(msg.value >= mintFeeWei, "Insufficient mint fee");
+        }
+        
+        // Time-based minting limits
+        uint256 currentTime = block.timestamp;
+        if (lastMintTime[msg.sender] > 0) {
+            // Check if enough time has passed to reset counter
+            if (currentTime >= lastMintTime[msg.sender] + timeWindow) {
+                mintedBy[msg.sender] = 0; // Reset counter
+            }
+        }
+        
+        if (maxPerAddress > 0) {
+            require(mintedBy[msg.sender] < maxPerAddress, "Mint limit reached. Try again in 2 hours.");
+        }
+        if (maxSupply > 0) {
+            require(_tokenIdCounter < maxSupply, "Max supply reached");
+        }
+
+        _tokenIdCounter++;
+        uint256 tokenId = _tokenIdCounter;
+        mintedBy[msg.sender] += 1;
+        lastMintTime[msg.sender] = currentTime;
+
+        _safeMint(msg.sender, tokenId);
+        _setTokenURI(tokenId, uri);
+        emit NFTMinted(msg.sender, tokenId, uri);
+        return tokenId;
+    }
+
+    /**
+     * @notice Admin: configure public mint parameters
+     */
+    function configurePublicMint(
+        uint256 _mintFeeWei,
+        uint256 _maxPerAddress,
+        uint256 _maxSupply,
+        uint256 _timeWindow,
+        bool _paused
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        mintFeeWei = _mintFeeWei;
+        maxPerAddress = _maxPerAddress;
+        maxSupply = _maxSupply;
+        timeWindow = _timeWindow;
+        mintPaused = _paused;
+    }
+
+    /**
+     * @notice Admin: withdraw collected mint fees
+     */
+    function withdraw(address payable to) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint256 bal = address(this).balance;
+        require(bal > 0, "No funds");
+        to.transfer(bal);
     }
 
     /**
