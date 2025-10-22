@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, CheckCircle } from 'lucide-react';
 import { useStore } from '@/lib/store';
+import { useWallet } from '@/lib/wallet/useWallet';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -15,7 +16,8 @@ export default function UploadForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addNFT, isWalletConnected } = useStore();
+  const { addNFT } = useStore();
+  const { connected } = useWallet();
   const router = useRouter();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +43,7 @@ export default function UploadForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isWalletConnected) {
+    if (!connected) {
       alert('Please connect your wallet first!');
       return;
     }

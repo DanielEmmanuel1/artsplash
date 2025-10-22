@@ -2,22 +2,16 @@
 
 import { motion } from 'framer-motion';
 import { useStore } from '@/lib/store';
+import { useWallet } from '@/lib/wallet/useWallet';
 import DashboardGrid from '@/components/DashboardGrid';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function DashboardPage() {
-  const { isWalletConnected, userNFTs } = useStore();
+  const { userNFTs } = useStore();
+  const { connected } = useWallet();
   const router = useRouter();
 
-  // Redirect if wallet not connected
-  useEffect(() => {
-    if (!isWalletConnected) {
-      // Don't redirect, just show a message
-    }
-  }, [isWalletConnected]);
-
-  if (!isWalletConnected) {
+  if (!connected) {
     return (
       <div className="min-h-screen bg-smokeWhite flex items-center justify-center px-4">
         <motion.div
