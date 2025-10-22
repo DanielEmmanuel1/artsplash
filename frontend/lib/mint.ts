@@ -78,11 +78,16 @@ export async function mintNFT(
       message: 'Minting NFT on Avalanche... Please confirm in your wallet',
     });
 
+    console.log('🔄 Attempting to mint with URI:', metadataURI);
+    console.log('🔄 Minting to address:', creator);
+    console.log('🔄 Contract address:', CONTRACTS.NFT_ADDRESS);
+    
     const txHash = await writeContract(wagmiConfig, {
       address: CONTRACTS.NFT_ADDRESS as `0x${string}`,
       abi: NFT_ABI,
       functionName: 'safeMint',
       args: [creator as `0x${string}`, metadataURI],
+      gas: 500000n, // Explicit gas limit
     });
 
     console.log('⛓️ Transaction submitted:', txHash);
