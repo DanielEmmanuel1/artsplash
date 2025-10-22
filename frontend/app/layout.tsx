@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { WalletProvider } from "@/lib/wallet/WalletProvider";
 import NetworkBanner from "@/components/wallet/NetworkBanner";
+import ThemeProvider from "@/components/ThemeProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,13 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${dancingScript.variable} antialiased flex flex-col min-h-screen bg-white`}
+        className={`${inter.variable} ${dancingScript.variable} antialiased flex flex-col min-h-screen bg-white dark:bg-metallicBlack transition-colors duration-300`}
       >
         <WalletProvider>
-          <NetworkBanner />
-          <Navbar />
-          <main className="grow">{children}</main>
-          <Footer />
+          <ThemeProvider>
+            <NetworkBanner />
+            <Navbar />
+            <main className="grow">{children}</main>
+            <Footer />
+          </ThemeProvider>
         </WalletProvider>
       </body>
     </html>

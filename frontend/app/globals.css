@@ -14,3 +14,8 @@
   --font-family-cursive: 'Dancing Script', cursive;
   --font-family-sans: 'Inter', sans-serif;
 }
+
+/* Dark mode styles */
+.dark {
+  color-scheme: dark;
+}
