@@ -5,8 +5,9 @@ import { useStore } from '@/lib/store';
 import { useWallet } from '@/lib/wallet/useWallet';
 import DashboardGrid from '@/components/DashboardGrid';
 import { useRouter } from 'next/navigation';
-import { useBalance } from 'wagmi';
+import { useBalance, useReadContract } from 'wagmi';
 import { useEffect, useState } from 'react';
+import { CONTRACTS, NFT_ABI } from '@/lib/contracts';
 
 export default function DashboardPage() {
   const { userNFTs } = useStore();
@@ -15,13 +16,28 @@ export default function DashboardPage() {
   const { data: balance } = useBalance({
     address: address as `0x${string}` | undefined,
   });
+  
+  // Fetch total NFTs minted from blockchain
+  const { data: totalSupply } = useReadContract({
+    address: CONTRACTS.NFT_ADDRESS as `0x${string}`,
+    abi: NFT_ABI,
+    functionName: 'totalSupply',
+  });
+  
   const [balanceDisplay, setBalanceDisplay] = useState('0.00');
+  const [totalMinted, setTotalMinted] = useState('0');
 
   useEffect(() => {
     if (balance) {
       setBalanceDisplay(parseFloat(balance.formatted).toFixed(4));
     }
   }, [balance]);
+
+  useEffect(() => {
+    if (totalSupply !== undefined) {
+      setTotalMinted(totalSupply.toString());
+    }
+  }, [totalSupply]);
 
   if (!connected) {
     return (
@@ -72,7 +88,7 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12"
         >
           {/* Wallet Balance */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
@@ -83,12 +99,22 @@ export default function DashboardPage() {
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>
           </div>
           
-          {/* Total NFTs */}
+          {/* Total NFTs Minted (Blockchain) - NEW */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
-            <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total NFTs</p>
+            <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total Minted</p>
+            <p className="text-3xl font-bold text-green-500">
+              {totalMinted}
+            </p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">On-Chain</p>
+          </div>
+          
+          {/* My NFTs */}
+          <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
+            <p className="text-gray dark:text-smokeWhite text-sm mb-1">My NFTs</p>
             <p className="text-3xl font-bold text-lightBlue">
               {userNFTs.length}
             </p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">Owned</p>
           </div>
           
           {/* Listed for Sale */}
@@ -97,6 +123,7 @@ export default function DashboardPage() {
             <p className="text-3xl font-bold text-lightBlue">
               {userNFTs.filter((nft) => nft.isListed).length}
             </p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">Active</p>
           </div>
           
           {/* Total Value */}
