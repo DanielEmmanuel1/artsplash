@@ -339,27 +339,33 @@ export default function UploadForm() {
               <h2 className="text-2xl font-bold text-metallicBlack dark:text-white mb-2">
                 {contractsDeployed ? '🎉 NFT Minted Successfully!' : '✅ NFT Created!'}
               </h2>
-              <p className="text-gray dark:text-smokeWhite mb-2">
+              <p className="text-gray dark:text-smokeWhite mb-4">
                 {contractsDeployed
                   ? 'Your NFT has been minted on the Avalanche blockchain'
                   : 'Your NFT has been created and added to your dashboard'}
               </p>
               {tokenId && (
-                <p className="text-sm text-lightBlue font-mono mb-2">
-                  Token ID: #{tokenId}
-                </p>
-              )}
-              {txHash && (
-                <a
-                  href={`https://testnet.snowtrace.io/tx/${txHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-lightBlue hover:underline mb-6 inline-flex items-center"
-                >
-                  View on Snowtrace <ExternalLink size={14} className="ml-1" />
-                </a>
+                <div className="bg-lightBlue/10 border border-lightBlue/30 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-gray dark:text-smokeWhite mb-1">Token ID</p>
+                  <p className="text-xl font-bold text-lightBlue font-mono">
+                    #{tokenId}
+                  </p>
+                </div>
               )}
               <div className="space-y-2 mt-6">
+                {txHash && (
+                  <motion.a
+                    href={`https://testnet.snowtrace.io/tx/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-blue text-white px-6 py-3 rounded-lg hover:bg-blue/90 transition-colors font-medium flex items-center justify-center space-x-2"
+                  >
+                    <ExternalLink size={18} />
+                    <span>View Transaction on Snowtrace</span>
+                  </motion.a>
+                )}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -374,7 +380,7 @@ export default function UploadForm() {
                   onClick={() => setShowSuccess(false)}
                   className="w-full bg-gray/20 text-metallicBlack dark:text-white px-6 py-3 rounded-lg hover:bg-gray/30 transition-colors font-medium"
                 >
-                  Mint Another
+                  Mint Another NFT
                 </motion.button>
               </div>
             </motion.div>
