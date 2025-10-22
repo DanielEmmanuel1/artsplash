@@ -6,8 +6,10 @@ import { useWallet } from '@/lib/wallet/useWallet';
 import DashboardGrid from '@/components/DashboardGrid';
 import { useRouter } from 'next/navigation';
 import { useBalance, useReadContract } from 'wagmi';
+import { readContract } from 'wagmi/actions';
 import { useEffect, useState } from 'react';
 import { CONTRACTS, NFT_ABI } from '@/lib/contracts';
+import { wagmiConfig } from '@/lib/wallet/config';
 
 export default function DashboardPage() {
   const { userNFTs } = useStore();
@@ -26,6 +28,7 @@ export default function DashboardPage() {
   
   const [balanceDisplay, setBalanceDisplay] = useState('0.00');
   const [totalMinted, setTotalMinted] = useState('0');
+  const [myOwnedCount, setMyOwnedCount] = useState(0);
 
   useEffect(() => {
     if (balance) {
@@ -38,6 +41,44 @@ export default function DashboardPage() {
       setTotalMinted(totalSupply.toString());
     }
   }, [totalSupply]);
+
+  // Calculate how many NFTs the connected wallet owns (on-chain)
+  useEffect(() => {
+    const loadOwned = async () => {
+      try {
+        if (!address || totalSupply === undefined) {
+          setMyOwnedCount(0);
+          return;
+        }
+        const supply = Number(totalSupply);
+        if (supply === 0) {
+          setMyOwnedCount(0);
+          return;
+        }
+        // Scan recent tokenIds (cap to first 200 tokens for performance)
+        const maxScan = Math.min(supply, 200);
+        const tokenIds = Array.from({ length: maxScan }, (_, i) => i + 1);
+        const owners = await Promise.all(
+          tokenIds.map((id) =>
+            readContract(wagmiConfig, {
+              address: CONTRACTS.NFT_ADDRESS as `0x${string}`,
+              abi: NFT_ABI,
+              functionName: 'ownerOf',
+              args: [BigInt(id)],
+            }).catch(() => undefined)
+          )
+        );
+        const count = owners.reduce((acc, owner) => {
+          if (!owner) return acc;
+          return acc + (String(owner).toLowerCase() === String(address).toLowerCase() ? 1 : 0);
+        }, 0);
+        setMyOwnedCount(count);
+      } catch {
+        setMyOwnedCount(0);
+      }
+    };
+    loadOwned();
+  }, [address, totalSupply]);
 
   if (!connected) {
     return (
@@ -108,13 +149,13 @@ export default function DashboardPage() {
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">On-Chain</p>
           </div>
           
-          {/* My NFTs */}
+          {/* My NFTs (On-Chain) */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">My NFTs</p>
             <p className="text-3xl font-bold text-lightBlue">
-              {userNFTs.length}
+              {myOwnedCount}
             </p>
-            <p className="text-xs text-gray dark:text-smokeWhite mt-1">Owned</p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">Owned (On-Chain)</p>
           </div>
           
           {/* Listed for Sale */}
