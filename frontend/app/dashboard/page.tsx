@@ -5,11 +5,23 @@ import { useStore } from '@/lib/store';
 import { useWallet } from '@/lib/wallet/useWallet';
 import DashboardGrid from '@/components/DashboardGrid';
 import { useRouter } from 'next/navigation';
+import { useBalance } from 'wagmi';
+import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
   const { userNFTs } = useStore();
-  const { connected } = useWallet();
+  const { connected, address } = useWallet();
   const router = useRouter();
+  const { data: balance } = useBalance({
+    address: address as `0x${string}` | undefined,
+  });
+  const [balanceDisplay, setBalanceDisplay] = useState('0.00');
+
+  useEffect(() => {
+    if (balance) {
+      setBalanceDisplay(parseFloat(balance.formatted).toFixed(4));
+    }
+  }, [balance]);
 
   if (!connected) {
     return (
@@ -60,29 +72,43 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
         >
+          {/* Wallet Balance */}
+          <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
+            <p className="text-gray dark:text-smokeWhite text-sm mb-1">Wallet Balance</p>
+            <p className="text-3xl font-bold text-lightBlue">
+              {balanceDisplay}
+            </p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>
+          </div>
+          
+          {/* Total NFTs */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total NFTs</p>
             <p className="text-3xl font-bold text-lightBlue">
               {userNFTs.length}
             </p>
           </div>
+          
+          {/* Listed for Sale */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Listed for Sale</p>
             <p className="text-3xl font-bold text-lightBlue">
               {userNFTs.filter((nft) => nft.isListed).length}
             </p>
           </div>
+          
+          {/* Total Value */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total Value</p>
             <p className="text-3xl font-bold text-lightBlue">
               {userNFTs
                 .filter((nft) => nft.isListed)
                 .reduce((sum, nft) => sum + (nft.price || 0), 0)
-                .toFixed(2)}{' '}
-              AVAX
+                .toFixed(2)}
             </p>
+            <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>
           </div>
         </motion.div>
 
