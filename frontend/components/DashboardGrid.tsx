@@ -271,6 +271,21 @@ export default function DashboardGrid({ onCountsUpdate }: DashboardGridProps) {
     loadMyListings();
   }, [connected, address, showSuccessModal]);
 
+  // Recompute dashboard counts whenever owned NFTs or myListings change
+  useEffect(() => {
+    if (!onCountsUpdate) return;
+    // Build unique set of contract-token keys across owned + listed
+    const key = (n: StoreNFT) => `${n.contractAddress}-${n.tokenId}`;
+    const ownedCount = chainNFTs.length;
+    const listedCount = myListings.length;
+    const totalCount = new Set<string>([
+      ...chainNFTs.map(key),
+      ...myListings.map(key),
+    ]).size;
+    const listedValue = myListings.reduce((s, n) => s + (n.price || 0), 0);
+    onCountsUpdate(totalCount, ownedCount, listedCount, listedValue);
+  }, [chainNFTs, myListings, onCountsUpdate]);
+
   const handleListClick = (nft: StoreNFT) => {
     // Check if NFT is from the configured contract (just for informational purposes)
     const isFromConfiguredContract = 
