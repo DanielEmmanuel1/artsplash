@@ -86,6 +86,13 @@ export default function SettingsMenu() {
                     <div className="space-y-2">
                       <ModeOption
                         icon={<Palette size={20} />}
+                        title="Demo Mode"
+                        description="Try the UI without on-chain actions"
+                        isActive={appMode === 'demo'}
+                        onClick={() => handleModeChange('demo')}
+                      />
+                      <ModeOption
+                        icon={<Palette size={20} />}
                         title="Creator Mode"
                         description="Standard interface for creating and trading NFTs"
                         isActive={appMode === 'creator'}

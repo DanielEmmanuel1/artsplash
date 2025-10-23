@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type AppMode = 'creator' | 'developer';
+export type AppMode = 'demo' | 'creator' | 'developer';
 export type ThemeMode = 'light' | 'dark';
 
 interface SettingsState {
@@ -17,13 +17,17 @@ interface SettingsState {
   // Developer mode acknowledgment
   hasAcknowledgedDevMode: boolean;
   acknowledgeDevMode: () => void;
+
+  // Onboarding modal
+  hasSeenOnboarding: boolean;
+  setHasSeenOnboarding: () => void;
 }
 
 export const useSettings = create<SettingsState>()(
   persist(
     (set) => ({
-      // Default to creator mode
-      appMode: 'creator',
+      // Default to demo mode (no on-chain actions until user opts in)
+      appMode: 'demo',
       setAppMode: (mode) => set({ appMode: mode }),
       
       // Default to light theme
@@ -36,6 +40,10 @@ export const useSettings = create<SettingsState>()(
       // Developer mode acknowledgment
       hasAcknowledgedDevMode: false,
       acknowledgeDevMode: () => set({ hasAcknowledgedDevMode: true }),
+
+      // Onboarding
+      hasSeenOnboarding: false,
+      setHasSeenOnboarding: () => set({ hasSeenOnboarding: true }),
     }),
     {
       name: 'artistic-splash-settings',

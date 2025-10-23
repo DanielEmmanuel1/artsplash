@@ -8,10 +8,12 @@ import { useRouter } from 'next/navigation';
 import { useBalance } from 'wagmi';
 import { useEffect, useState, useCallback } from 'react';
 import { areContractsDeployed } from '@/lib/contracts';
+import { useSettings } from '@/lib/settingsStore';
 
 export default function DashboardPage() {
   const { userNFTs } = useStore();
   const { connected, address } = useWallet();
+  const { appMode } = useSettings();
   const router = useRouter();
   const { data: balance } = useBalance({
     address: address as `0x${string}` | undefined,
@@ -32,7 +34,7 @@ export default function DashboardPage() {
     console.log('📊 Dashboard stats updated:', { total, owned, listed, listedValue });
   }, []);
 
-  if (!connected) {
+  if (!connected && appMode !== 'demo') {
     return (
       <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center px-4">
         <motion.div

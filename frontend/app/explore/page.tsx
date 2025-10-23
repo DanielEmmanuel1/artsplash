@@ -6,6 +6,7 @@ import LazyNFTCard from '@/components/LazyNFTCard';
 import { scanMarketplaceListings, buyNFT, type MarketplaceListing } from '@/lib/marketplace';
 import { areContractsDeployed } from '@/lib/contracts';
 import { useWallet } from '@/lib/wallet/useWallet';
+import { useSettings } from '@/lib/settingsStore';
 import { Loader2 } from 'lucide-react';
 import { NFT } from '@/lib/store';
 
@@ -15,9 +16,10 @@ export default function ExplorePage() {
   const [buying, setBuying] = useState(false);
   const [buyingNftId, setBuyingNftId] = useState<string | null>(null);
   const { connected } = useWallet();
+  const { appMode } = useSettings();
 
-  // Require wallet connection to view marketplace
-  if (!connected) {
+  // Require wallet except in demo mode
+  if (!connected && appMode !== 'demo') {
     return (
       <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center px-4">
         <motion.div
@@ -56,7 +58,7 @@ export default function ExplorePage() {
   }, []);
 
   const handleBuyClick = async (nft: NFT) => {
-    if (!connected) {
+    if (!connected && appMode !== 'demo') {
       alert('Please connect your wallet first!');
       return;
     }

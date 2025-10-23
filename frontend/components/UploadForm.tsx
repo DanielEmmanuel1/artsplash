@@ -10,7 +10,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { mintNFT, validateMintRequirements, type MintStatus } from '@/lib/mint';
 import { validateImageFile, ipfsToHttp } from '@/lib/ipfs';
-import { areContractsDeployed, getDeploymentInstructions } from '@/lib/contracts';
+import { areContractsDeployed } from '@/lib/contracts';
+import { useSettings } from '@/lib/settingsStore';
 
 export default function UploadForm() {
   const [name, setName] = useState('');
@@ -30,6 +31,7 @@ export default function UploadForm() {
   const router = useRouter();
   
   const contractsDeployed = areContractsDeployed();
+  const { appMode } = useSettings();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -267,7 +269,7 @@ export default function UploadForm() {
           className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4"
         >
           <div className="flex items-start space-x-3">
-            <AlertCircle className="text-yellow-500 flex-shrink-0 mt-1" size={20} />
+            <AlertCircle className="text-yellow-500 shrink-0 mt-1" size={20} />
             <div>
               <h3 className="font-semibold text-yellow-700 dark:text-yellow-400 mb-1">
                 Contracts Not Deployed
@@ -366,7 +368,7 @@ export default function UploadForm() {
             className="mb-4 bg-red-500/10 border border-red-500/30 rounded-lg p-3"
           >
             <div className="flex items-start space-x-2">
-              <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={18} />
+              <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           </motion.div>
@@ -380,7 +382,7 @@ export default function UploadForm() {
             className="mb-4 bg-lightBlue/10 border border-lightBlue/30 rounded-lg p-4"
           >
             <div className="flex items-start space-x-3">
-              <Loader2 className="text-lightBlue flex-shrink-0 animate-spin mt-1" size={20} />
+              <Loader2 className="text-lightBlue shrink-0 animate-spin mt-1" size={20} />
               <div className="flex-1">
                 <p className="font-semibold text-blue dark:text-lightBlue mb-1">
                   {mintStatus.stage === 'uploading' && '📦 Uploading to IPFS...'}
@@ -428,15 +430,15 @@ export default function UploadForm() {
               {mintStatus?.stage === 'minting' && 'Minting...'}
               {!mintStatus && 'Processing...'}
             </span>
-          ) : contractsDeployed ? (
+          ) : contractsDeployed && appMode !== 'demo' ? (
             isAdmin ? '🚀 Admin Mint (Unlimited)' : '🎨 Public Mint (2 per 2hrs)'
           ) : (
             '🎨 Create NFT (Demo Mode)'
           )}
         </motion.button>
 
-        {/* Test Mint Button for Debugging - show only when contracts not deployed */}
-        {connected && !contractsDeployed && (
+        {/* Test Mint Button for Debugging - show only in demo mode */}
+        {connected && appMode === 'demo' && (
           <motion.button
             type="button"
             onClick={handleTestMint}
