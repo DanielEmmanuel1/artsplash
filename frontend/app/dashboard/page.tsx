@@ -42,7 +42,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white dark:bg-gray/20 rounded-xl p-12 text-center max-w-md shadow-xl border border-transparent dark:border-gray/30"
         >
-          <h2 className="text-3xl font-bold text-blue dark:text-lightBlue mb-4">
+          <h2 className="text-3xl font-bold text-red dark:text-lightRed mb-4">
             Wallet Not Connected
           </h2>
           <p className="text-gray dark:text-smokeWhite mb-8">
@@ -52,7 +52,7 @@ export default function DashboardPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => router.push('/')}
-            className="bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium"
+            className="bg-lightRed text-white px-6 py-3 rounded-lg hover:bg-red transition-colors font-medium"
           >
             Go to Home
           </motion.button>
@@ -88,7 +88,7 @@ export default function DashboardPage() {
           {/* Wallet Balance */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Wallet Balance</p>
-            <p className="text-3xl font-bold text-lightBlue">
+            <p className="text-3xl font-bold text-lightRed">
               {balanceDisplay}
             </p>
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
           {/* Listed for Sale */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Listed for Sale</p>
-            <p className="text-3xl font-bold text-lightBlue">
+            <p className="text-3xl font-bold text-lightRed">
               {nftCounts.listed}
             </p>
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">Active</p>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
           {/* Total Value */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total Value</p>
-            <p className="text-3xl font-bold text-lightBlue">
+            <p className="text-3xl font-bold text-lightRed">
               {nftCounts.listedValue.toFixed(2)}
             </p>
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>

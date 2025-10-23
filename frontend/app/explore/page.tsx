@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import LazyNFTCard from '@/components/LazyNFTCard';
 import { scanMarketplaceListings, buyNFT, type MarketplaceListing } from '@/lib/marketplace';
@@ -78,8 +79,8 @@ export default function ExplorePage() {
       } else {
         alert(`❌ Failed to buy NFT: ${result.error}`);
       }
-    } catch (error: any) {
-      alert(`❌ Error: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setBuying(false);
       setBuyingNftId(null);
@@ -174,14 +175,12 @@ export default function ExplorePage() {
                 ? 'No NFTs listed on the marketplace yet' 
                 : 'Contracts not deployed - marketplace unavailable'}
             </p>
-            <motion.a
+            <Link
               href="/mint"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium"
+              className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium hover:scale-105 active:scale-95"
             >
               Mint & List Your NFT
-            </motion.a>
+            </Link>
           </motion.div>
         ) : (
           <motion.div
@@ -237,7 +236,7 @@ export default function ExplorePage() {
           >
             <h2 className="text-3xl font-bold text-blue dark:text-lightBlue mb-3">Wallet Required</h2>
             <p className="text-gray dark:text-smokeWhite mb-6">Connect your wallet to browse and buy NFTs on the marketplace.</p>
-            <a href="/" className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium">Connect Wallet</a>
+            <Link href="/" className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium">Connect Wallet</Link>
           </motion.div>
         )}
       </div>

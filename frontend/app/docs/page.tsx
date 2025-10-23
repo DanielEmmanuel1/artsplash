@@ -91,7 +91,7 @@ const docContent: Record<string, DocEntry> = {
   introduction: {
     title: 'Introduction',
     icon: <Wand2 size={48} />,
-    gradient: 'from-lightBlue to-blue',
+    gradient: 'from-lightRed to-red',
     sections: [
       {
         type: 'hero',
@@ -123,7 +123,7 @@ const docContent: Record<string, DocEntry> = {
   'quick-start': {
     title: 'Quick Start',
     icon: <Zap size={48} />,
-    gradient: 'from-lightBlue to-blue',
+    gradient: 'from-lightRed to-red',
     sections: [
       {
         type: 'steps',
@@ -153,7 +153,7 @@ const docContent: Record<string, DocEntry> = {
   'nft-minting': {
     title: 'NFT Minting',
     icon: <Wand2 size={48} />,
-    gradient: 'from-lightBlue to-blue',
+    gradient: 'from-lightRed to-red',
     sections: [
       {
         type: 'hero',
@@ -183,7 +183,7 @@ const docContent: Record<string, DocEntry> = {
   'marketplace': {
     title: 'Marketplace',
     icon: <Store size={48} />,
-    gradient: 'from-lightBlue to-blue',
+    gradient: 'from-lightRed to-red',
     sections: [
       {
         type: 'hero',
@@ -215,7 +215,7 @@ const docContent: Record<string, DocEntry> = {
   'smart-contracts': {
     title: 'Smart Contracts',
     icon: <FileCode size={48} />,
-    gradient: 'from-lightBlue to-blue',
+    gradient: 'from-lightRed to-red',
     sections: [
       {
         type: 'hero',
@@ -276,7 +276,7 @@ const docContent: Record<string, DocEntry> = {
   deployment: {
     title: 'Deployment',
     icon: <Rocket size={48} />,
-    gradient: 'from-lightBlue to-blue',
+    gradient: 'from-lightRed to-red',
     sections: [
       {
         type: 'hero',
@@ -317,7 +317,7 @@ const docContent: Record<string, DocEntry> = {
   testing: {
     title: 'Testing',
     icon: <TestTube size={48} />,
-    gradient: 'from-lightBlue to-blue',
+    gradient: 'from-lightRed to-red',
     sections: [
       {
         type: 'hero',
@@ -386,7 +386,7 @@ const renderSection = (section: Section): ReactNode => {
       return (
         <div className="mb-6 p-6 bg-white dark:bg-gray/10 rounded-xl border border-gray/20 dark:border-gray/30">
           <div className="flex items-start space-x-4">
-            <div className="p-3 bg-lightBlue/10 rounded-lg text-lightBlue shrink-0">
+            <div className="p-3 bg-lightRed/10 rounded-lg text-lightRed shrink-0">
               {section.icon}
             </div>
             <div>
@@ -403,12 +403,12 @@ const renderSection = (section: Section): ReactNode => {
     
     case 'info':
       return (
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-lg">
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg">
           <div className="flex items-start space-x-3">
-            <div className="text-lightBlue shrink-0 mt-0.5">
+            <div className="text-lightRed shrink-0 mt-0.5">
               {section.icon}
             </div>
-            <p className="text-blue-900 dark:text-blue-200 text-sm leading-relaxed">
+            <p className="text-red-900 dark:text-red-200 text-sm leading-relaxed">
               {section.content}
             </p>
           </div>
@@ -417,7 +417,7 @@ const renderSection = (section: Section): ReactNode => {
     
     case 'closing':
       return (
-        <div className="mt-8 p-6 bg-linear-to-r from-lightBlue/10 to-blue/10 rounded-xl border border-lightBlue/20">
+        <div className="mt-8 p-6 bg-linear-to-r from-lightRed/10 to-red/10 rounded-xl border border-lightRed/20">
           <p className="text-lg text-metallicBlack dark:text-white leading-relaxed">
             {section.content}
           </p>
@@ -433,14 +433,14 @@ const renderSection = (section: Section): ReactNode => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className="relative pl-20 pb-8 border-l-2 border-lightBlue/30 last:border-l-0 last:pb-0"
+              className="relative pl-20 pb-8 border-l-2 border-lightRed/30 last:border-l-0 last:pb-0"
             >
-              <div className="absolute left-0 top-0 -translate-x-1/2 w-12 h-12 bg-linear-to-br from-lightBlue to-blue rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+              <div className="absolute left-0 top-0 -translate-x-1/2 w-12 h-12 bg-linear-to-br from-lightRed to-red rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
                 {step.number}
               </div>
               <div className="bg-white dark:bg-gray/10 rounded-xl p-6 border border-gray/20 dark:border-gray/30">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="text-lightBlue">
+                  <div className="text-lightRed">
                     {step.icon}
                   </div>
                   <h3 className="text-xl font-semibold text-metallicBlack dark:text-white">
@@ -465,7 +465,7 @@ const renderSection = (section: Section): ReactNode => {
           <div className="space-y-3">
             {section.steps.map((step, idx) => (
               <div key={idx} className="flex items-center space-x-3 p-4 bg-white dark:bg-gray/10 rounded-lg border border-gray/20 dark:border-gray/30">
-                <div className="w-8 h-8 bg-lightBlue rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0">
+                <div className="w-8 h-8 bg-lightRed rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0">
                   {idx + 1}
                 </div>
                 <p className="text-gray dark:text-smokeWhite">{step}</p>
@@ -485,7 +485,7 @@ const renderSection = (section: Section): ReactNode => {
             {section.items.map((item, idx) => (
               <div key={idx} className="flex items-center justify-between p-4 bg-linear-to-r from-white to-gray-50 dark:from-gray/10 dark:to-gray/5 rounded-lg border border-gray/20 dark:border-gray/30">
                 <div className="flex items-center space-x-3">
-                  <div className="text-lightBlue">
+                  <div className="text-lightRed">
                     {item.icon}
                   </div>
                   <span className="font-medium text-metallicBlack dark:text-white">
@@ -509,9 +509,9 @@ const renderSection = (section: Section): ReactNode => {
           </h3>
           <div className="grid gap-4">
             {section.items.map((item, idx) => (
-              <div key={idx} className="p-6 bg-white dark:bg-gray/10 rounded-xl border border-gray/20 dark:border-gray/30 hover:border-lightBlue/50 transition-colors">
+              <div key={idx} className="p-6 bg-white dark:bg-gray/10 rounded-xl border border-gray/20 dark:border-gray/30 hover:border-lightRed/50 transition-colors">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="text-lightBlue">
+                  <div className="text-lightRed">
                     {item.icon}
                   </div>
                   <h4 className="text-lg font-semibold text-metallicBlack dark:text-white">
@@ -531,7 +531,7 @@ const renderSection = (section: Section): ReactNode => {
       return (
         <div className="mb-8 p-6 bg-white dark:bg-gray/10 rounded-xl border border-gray/20 dark:border-gray/30">
           <div className="mb-4">
-            <h3 className="text-2xl font-mono font-bold text-lightBlue mb-2">
+            <h3 className="text-2xl font-mono font-bold text-lightRed mb-2">
               {section.name}
             </h3>
             <p className="text-gray dark:text-smokeWhite italic">
@@ -546,7 +546,7 @@ const renderSection = (section: Section): ReactNode => {
             <div className="space-y-2">
               {section.features.map((feature: string, idx: number) => (
                 <div key={idx} className="flex items-start space-x-2">
-                  <CheckCircle2 size={18} className="text-lightBlue shrink-0 mt-0.5" />
+                  <CheckCircle2 size={18} className="text-lightRed shrink-0 mt-0.5" />
                   <span className="text-gray dark:text-smokeWhite text-sm">{feature}</span>
                 </div>
               ))}
@@ -560,7 +560,7 @@ const renderSection = (section: Section): ReactNode => {
             <div className="space-y-2">
               {section.functions.map((func: string, idx: number) => (
                 <div key={idx} className="flex items-start space-x-2 font-mono text-sm">
-                  <Code size={16} className="text-lightBlue shrink-0 mt-1" />
+                  <Code size={16} className="text-lightRed shrink-0 mt-1" />
                   <span className="text-gray dark:text-smokeWhite">{func}</span>
                 </div>
               ))}
@@ -571,9 +571,9 @@ const renderSection = (section: Section): ReactNode => {
     
     case 'security':
       return (
-        <div className="mb-8 p-6 bg-linear-to-br from-lightBlue/10 to-blue/10 rounded-xl border border-lightBlue/20 dark:border-blue/20">
+        <div className="mb-8 p-6 bg-linear-to-br from-lightRed/10 to-red/10 rounded-xl border border-lightRed/20 dark:border-red/20">
           <div className="flex items-center space-x-3 mb-4">
-            <Shield size={32} className="text-lightBlue" />
+            <Shield size={32} className="text-lightRed" />
             <h3 className="text-2xl font-semibold text-metallicBlack dark:text-white">
               {section.title}
             </h3>
@@ -581,7 +581,7 @@ const renderSection = (section: Section): ReactNode => {
           <div className="grid grid-cols-2 gap-3">
             {section.items.map((item: string, idx: number) => (
               <div key={idx} className="flex items-center space-x-2 p-3 bg-white/50 dark:bg-black/20 rounded-lg">
-                <CheckCircle2 size={16} className="text-lightBlue shrink-0" />
+                <CheckCircle2 size={16} className="text-lightRed shrink-0" />
                 <span className="text-sm text-gray dark:text-smokeWhite">{item}</span>
               </div>
             ))}
@@ -598,7 +598,7 @@ const renderSection = (section: Section): ReactNode => {
           <div className="grid grid-cols-2 gap-4">
             {section.items.map((item: string, idx: number) => (
               <div key={idx} className="flex items-center space-x-3 p-4 bg-white dark:bg-gray/10 rounded-lg border border-gray/20 dark:border-gray/30">
-                <CheckCircle2 size={20} className="text-lightBlue shrink-0" />
+                <CheckCircle2 size={20} className="text-lightRed shrink-0" />
                 <span className="text-gray dark:text-smokeWhite">{item}</span>
               </div>
             ))}
@@ -616,7 +616,7 @@ const renderSection = (section: Section): ReactNode => {
             {section.steps.map((step: CodeStep, idx: number) => (
               <div key={idx} className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-lightBlue rounded-full flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-6 h-6 bg-lightRed rounded-full flex items-center justify-center text-white text-xs font-bold">
                     {idx + 1}
                   </div>
                   <h4 className="font-semibold text-metallicBlack dark:text-white">
@@ -661,7 +661,7 @@ const renderSection = (section: Section): ReactNode => {
             {section.categories.map((category: Category, idx) => (
             <div key={idx} className="p-6 bg-white dark:bg-gray/10 rounded-xl border border-gray/20 dark:border-gray/30">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="text-lightBlue">
+                <div className="text-lightRed">
                   {category.icon}
                 </div>
                 <h3 className="text-xl font-semibold text-metallicBlack dark:text-white">
@@ -671,7 +671,7 @@ const renderSection = (section: Section): ReactNode => {
               <div className="space-y-2">
                 {category.items.map((item: string, itemIdx: number) => (
                   <div key={itemIdx} className="flex items-start space-x-2">
-                <CheckCircle2 size={16} className="text-lightBlue shrink-0 mt-0.5" />
+                <CheckCircle2 size={16} className="text-lightRed shrink-0 mt-0.5" />
                     <span className="text-sm text-gray dark:text-smokeWhite">{item}</span>
                   </div>
                 ))}
@@ -731,10 +731,10 @@ export default function DocsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-linear-to-br from-lightBlue to-blue rounded-lg flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 bg-linear-to-br from-lightRed to-red rounded-lg flex items-center justify-center shadow-lg">
                 <Palette className="text-white" size={20} />
               </div>
-              <h1 className="text-xl font-semibold bg-linear-to-r from-lightBlue to-blue bg-clip-text text-transparent">
+              <h1 className="text-xl font-semibold bg-linear-to-r from-lightRed to-red bg-clip-text text-transparent">
                 Artistic Splash Documentation
               </h1>
             </div>
@@ -743,19 +743,19 @@ export default function DocsPage() {
             <div className="hidden md:flex items-center space-x-6">
               <a 
                 href="/mint" 
-                className="text-gray dark:text-smokeWhite hover:text-lightBlue transition-colors font-medium"
+                    className="text-gray dark:text-smokeWhite hover:text-lightRed transition-colors font-medium"
               >
                 Mint
               </a>
               <a 
                 href="/explore" 
-                className="text-gray dark:text-smokeWhite hover:text-lightBlue transition-colors font-medium"
+                    className="text-gray dark:text-smokeWhite hover:text-lightRed transition-colors font-medium"
               >
                 Explore
               </a>
               <a 
                 href="/dashboard" 
-                className="text-gray dark:text-smokeWhite hover:text-lightBlue transition-colors font-medium"
+                    className="text-gray dark:text-smokeWhite hover:text-lightRed transition-colors font-medium"
               >
                 Dashboard
               </a>
@@ -814,7 +814,7 @@ export default function DocsPage() {
         <div className="w-80 bg-white dark:bg-gray/20 border-r border-gray/20 dark:border-gray/30 min-h-screen sticky top-0">
           <div className="p-6">
             <div className="flex items-center space-x-2 mb-8">
-              <div className="p-2 bg-linear-to-br from-lightBlue to-blue rounded-lg">
+              <div className="p-2 bg-linear-to-br from-lightRed to-red rounded-lg">
                 <Book className="text-white" size={24} />
               </div>
               <h1 className="text-xl font-semibold text-metallicBlack dark:text-white">
@@ -830,7 +830,7 @@ export default function DocsPage() {
                     className="w-full flex items-center justify-between p-3 text-left hover:bg-smokeWhite dark:hover:bg-gray/30 rounded-lg transition-colors group"
                   >
                     <div className="flex items-center space-x-2">
-                      <div className="text-lightBlue group-hover:scale-110 transition-transform">
+                      <div className="text-lightRed group-hover:scale-110 transition-transform">
                         {section.icon}
                       </div>
                       <span className="text-metallicBlack dark:text-white font-medium">
@@ -858,7 +858,7 @@ export default function DocsPage() {
                           onClick={() => setActiveSection(item.id)}
                           className={`w-full p-2 text-left rounded-lg transition-all ${
                             activeSection === item.id
-                              ? 'bg-linear-to-r from-lightBlue/20 to-blue/20 text-lightBlue border-l-2 border-lightBlue'
+                              ? 'bg-linear-to-r from-lightRed/20 to-red/20 text-lightRed border-l-2 border-lightRed'
                               : 'text-gray dark:text-smokeWhite hover:bg-smokeWhite dark:hover:bg-gray/30 hover:translate-x-1'
                           }`}
                         >

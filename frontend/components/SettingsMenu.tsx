@@ -82,7 +82,7 @@ export default function SettingsMenu() {
                   {/* App Mode */}
                   <div>
                     <label className="text-sm font-semibold text-metallicBlack dark:text-white flex items-center mb-3">
-                      <Palette size={16} className="mr-2 text-lightBlue" />
+                      <Palette size={16} className="mr-2 text-lightRed" />
                       Application Mode
                     </label>
                     <div className="space-y-2">
@@ -145,21 +145,21 @@ function ModeOption({ icon, title, description, isActive, onClick, badge }: Mode
       className={`
         w-full p-3 rounded-lg border-2 transition-all text-left
         ${isActive 
-          ? 'border-lightBlue bg-lightBlue/10 dark:bg-lightBlue/20' 
-          : 'border-gray/20 dark:border-gray/30 hover:border-lightBlue/50'
+          ? 'border-lightRed bg-lightRed/10 dark:bg-lightRed/20' 
+          : 'border-gray/20 dark:border-gray/30 hover:border-lightRed/50'
         }
       `}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
-          <div className={`mt-0.5 ${isActive ? 'text-lightBlue' : 'text-gray'}`}>
+          <div className={`mt-0.5 ${isActive ? 'text-lightRed' : 'text-gray'}`}>
             {icon}
           </div>
           <div className="flex-1">
             <div className="flex items-center space-x-2">
               <h4 className={`font-semibold ${
                 isActive 
-                  ? 'text-lightBlue' 
+                  ? 'text-lightRed' 
                   : 'text-metallicBlack dark:text-white'
               }`}>
                 {title}
