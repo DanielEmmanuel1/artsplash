@@ -50,12 +50,12 @@ export default function OnboardingModal() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white dark:bg-metallicBlack rounded-2xl p-8 max-w-2xl w-full border border-gray/20 dark:border-gray/40 shadow-2xl"
+          className="bg-white dark:bg-metallicBlack rounded-2xl p-6 sm:p-8 max-w-2xl w-full border border-gray/20 dark:border-gray/40 shadow-2xl max-h-[90vh] flex flex-col"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-2xl md:text-3xl font-bold text-metallicBlack dark:text-white">Welcome to Artistic Splash</h3>
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-metallicBlack dark:text-white">Welcome to Artistic Splash</h3>
           </div>
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4 mb-6 overflow-y-auto pr-1" style={{ maxHeight: '60vh' }}>
             <p className="text-gray dark:text-smokeWhite leading-relaxed">
             Artistic Splash was born out of a simple idea , to give artists and creators a fun, effortless way to bring their digital art to life on the blockchain. Built on <span className="font-semibold text-red-400">Avalanche, </span>creators can simply upload their artwork, whether it’s a painting, design, or photograph, and instantly transform it into an NFT.
             </p>
@@ -88,7 +88,7 @@ export default function OnboardingModal() {
               <button onClick={() => setPendingMode('developer')} className={`px-4 py-2 rounded-lg border ${pendingMode==='developer'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Developer Mode</button>
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray dark:text-smokeWhite mb-4 select-none cursor-pointer">
+          <label className="flex items-center gap-2 text-sm text-gray dark:text-smokeWhite mt-auto mb-4 select-none cursor-pointer">
             <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="w-4 h-4" />
             I understand how the modes work and agree to continue.
           </label>
