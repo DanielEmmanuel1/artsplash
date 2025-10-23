@@ -21,6 +21,8 @@ interface SettingsState {
   // Onboarding modal
   hasSeenOnboarding: boolean;
   setHasSeenOnboarding: () => void;
+  onboardingVersion: number;
+  setOnboardingVersion: (v: number) => void;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -41,9 +43,11 @@ export const useSettings = create<SettingsState>()(
       hasAcknowledgedDevMode: false,
       acknowledgeDevMode: () => set({ hasAcknowledgedDevMode: true }),
 
-      // Onboarding
+      // Onboarding (versioned)
       hasSeenOnboarding: false,
       setHasSeenOnboarding: () => set({ hasSeenOnboarding: true }),
+      onboardingVersion: 1,
+      setOnboardingVersion: (v: number) => set({ onboardingVersion: v }),
     }),
     {
       name: 'artistic-splash-settings',

@@ -6,15 +6,15 @@ import { X, Check } from 'lucide-react';
 import { useSettings } from '@/lib/settingsStore';
 
 export default function OnboardingModal() {
-  const { appMode, setAppMode, hasSeenOnboarding, setHasSeenOnboarding } = useSettings();
+  const { appMode, setAppMode, hasSeenOnboarding, setHasSeenOnboarding, onboardingVersion } = useSettings();
   const [show, setShow] = useState(false);
   const [ack, setAck] = useState(false);
 
   useEffect(() => {
-    if (hasSeenOnboarding) return; // never show again
+    if (hasSeenOnboarding) return; // already acknowledged
     const t = setTimeout(() => setShow(true), 5000);
     return () => clearTimeout(t);
-  }, [hasSeenOnboarding]);
+  }, [hasSeenOnboarding, onboardingVersion]);
 
   if (hasSeenOnboarding || !show) return null;
 
