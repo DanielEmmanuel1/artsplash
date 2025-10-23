@@ -13,7 +13,8 @@ export default function SettingsMenu() {
     appMode, 
     setAppMode, 
     hasAcknowledgedDevMode,
-    acknowledgeDevMode 
+    acknowledgeDevMode,
+    showGlobalLoading
   } = useSettings();
 
   const handleModeChange = (newMode: AppMode) => {
@@ -21,6 +22,7 @@ export default function SettingsMenu() {
       setShowDevWarning(true);
     } else {
       setAppMode(newMode);
+      showGlobalLoading(2000);
     }
   };
 
