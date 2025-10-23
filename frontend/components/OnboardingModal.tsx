@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useSettings } from '@/lib/settingsStore';
 
 export default function OnboardingModal() {
@@ -14,6 +14,19 @@ export default function OnboardingModal() {
     const t = setTimeout(() => setShow(true), 5000); // always show 5s after entering
     return () => clearTimeout(t);
   }, []);
+
+  // Disable background scrolling while modal is shown
+  useEffect(() => {
+    if (show) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = previousOverflow || '';
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [show]);
 
   if (!show) return null;
 
