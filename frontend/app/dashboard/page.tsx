@@ -18,7 +18,7 @@ export default function DashboardPage() {
   });
   
   const [balanceDisplay, setBalanceDisplay] = useState('0.00');
-  const [nftCounts, setNftCounts] = useState({ total: 0, owned: 0 });
+  const [nftCounts, setNftCounts] = useState({ total: 0, owned: 0, listed: 0, listedValue: 0 });
 
   useEffect(() => {
     if (balance) {
@@ -27,9 +27,9 @@ export default function DashboardPage() {
   }, [balance]);
 
   // Callback to receive NFT counts from DashboardGrid (memoized to prevent re-renders)
-  const handleNFTCountsUpdate = useCallback((total: number, owned: number) => {
-    setNftCounts({ total, owned });
-    console.log('📊 Dashboard stats updated:', { total, owned });
+  const handleNFTCountsUpdate = useCallback((total: number, owned: number, listed: number = 0, listedValue: number = 0) => {
+    setNftCounts({ total, owned, listed, listedValue });
+    console.log('📊 Dashboard stats updated:', { total, owned, listed, listedValue });
   }, []);
 
   if (!connected) {
@@ -92,7 +92,7 @@ export default function DashboardPage() {
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>
           </div>
           
-          {/* Total NFTs Minted (All contracts) */}
+          {/* Total NFTs (Owned + Listed) */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total Minted</p>
             <p className="text-3xl font-bold text-green-500">
@@ -103,22 +103,11 @@ export default function DashboardPage() {
             </p>
           </div>
           
-          {/* My NFTs (All contracts) */}
-          <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
-            <p className="text-gray dark:text-smokeWhite text-sm mb-1">My NFTs</p>
-            <p className="text-3xl font-bold text-lightBlue">
-              {nftCounts.owned}
-            </p>
-            <p className="text-xs text-gray dark:text-smokeWhite mt-1">
-              {areContractsDeployed() ? 'On-Chain' : 'Demo Mode'}
-            </p>
-          </div>
-          
           {/* Listed for Sale */}
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Listed for Sale</p>
             <p className="text-3xl font-bold text-lightBlue">
-              {userNFTs.filter((nft) => nft.isListed).length}
+              {nftCounts.listed}
             </p>
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">Active</p>
           </div>
@@ -127,10 +116,7 @@ export default function DashboardPage() {
           <div className="bg-white dark:bg-gray/20 rounded-lg p-6 shadow-md border border-transparent dark:border-gray/30">
             <p className="text-gray dark:text-smokeWhite text-sm mb-1">Total Value</p>
             <p className="text-3xl font-bold text-lightBlue">
-              {userNFTs
-                .filter((nft) => nft.isListed)
-                .reduce((sum, nft) => sum + (nft.price || 0), 0)
-                .toFixed(2)}
+              {nftCounts.listedValue.toFixed(2)}
             </p>
             <p className="text-xs text-gray dark:text-smokeWhite mt-1">AVAX</p>
           </div>

@@ -435,8 +435,8 @@ export default function UploadForm() {
           )}
         </motion.button>
 
-        {/* Test Mint Button for Debugging */}
-        {connected && (
+        {/* Test Mint Button for Debugging - show only when contracts not deployed */}
+        {connected && !contractsDeployed && (
           <motion.button
             type="button"
             onClick={handleTestMint}
