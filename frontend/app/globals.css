@@ -6,8 +6,12 @@
   /* Custom Colors - Artistic Splash Palette */
   --color-white: #ffffff;
   --color-smokeWhite: #f5f5f5;
-  --color-blue: #1e3a8a;
-  --color-lightBlue: #3b82f6;
+  /* Red palette (primary) */
+  --color-red: #b91c1c; /* deep red */
+  --color-lightRed: #ef4444; /* light red */
+  /* Aliases for backward compatibility */
+  --color-blue: var(--color-red);
+  --color-lightBlue: var(--color-lightRed);
   --color-metallicBlack: #1a1a1a;
   --color-silver: #c0c0c0;
   --color-gray: #6b7280;

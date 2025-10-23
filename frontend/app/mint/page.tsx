@@ -13,8 +13,8 @@ export default function MintPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-blue dark:text-lightBlue mb-4">
-            Mint Your NFT
+<h1 className="text-4xl md:text-5xl italic font-medium text-blue dark:text-lightBlue mb-4">
+            Turn your artwork into digital treasures
           </h1>
           <p className="text-gray dark:text-smokeWhite text-lg max-w-2xl mx-auto">
             Transform your artwork into a unique NFT on the Avalanche blockchain.

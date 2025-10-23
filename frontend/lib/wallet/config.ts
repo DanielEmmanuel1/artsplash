@@ -13,6 +13,7 @@ import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors';
 
 // Get environment variables
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
+const enableCoinbase = (process.env.NEXT_PUBLIC_ENABLE_COINBASE || '').toLowerCase() === 'true';
 const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Artistic Splash';
 
 if (!projectId) {
@@ -29,19 +30,12 @@ export const wagmiConfig = createConfig({
   chains: [avalancheFuji, avalancheMainnet],
   connectors: [
     // Injected connector (MetaMask, Browser wallets)
-    injected({
-      target: 'metaMask',
-    }),
-    
-    // Coinbase Wallet
-    coinbaseWallet({
-      appName,
-      appLogoUrl: '/logo.png', // Optional: add your logo
-    }),
-    
+    injected({ target: 'metaMask' }),
+    // Coinbase Wallet (opt-in to avoid analytics fetch errors on some networks)
+    enableCoinbase && coinbaseWallet({ appName, appLogoUrl: '/logo.png' }),
     // WalletConnect - ONLY include if valid project ID exists
-    // Get free project ID at: https://cloud.walletconnect.com
-  ].filter(Boolean),
+    projectId && walletConnect({ projectId })
+  ].filter(Boolean) as any,
   transports: {
     [avalancheFuji.id]: http(),
     [avalancheMainnet.id]: http(),

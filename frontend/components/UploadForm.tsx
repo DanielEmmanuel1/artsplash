@@ -10,7 +10,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { mintNFT, validateMintRequirements, type MintStatus } from '@/lib/mint';
 import { validateImageFile, ipfsToHttp } from '@/lib/ipfs';
-import { areContractsDeployed, getDeploymentInstructions } from '@/lib/contracts';
+import { areContractsDeployed } from '@/lib/contracts';
+import { useSettings } from '@/lib/settingsStore';
 
 export default function UploadForm() {
   const [name, setName] = useState('');
@@ -30,6 +31,7 @@ export default function UploadForm() {
   const router = useRouter();
   
   const contractsDeployed = areContractsDeployed();
+  const { appMode } = useSettings();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -247,7 +249,7 @@ export default function UploadForm() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${isAdmin ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                  <div className={`w-3 h-3 rounded-full ${isAdmin ? 'bg-green-500' : 'bg-red-500'}`}></div>
                   <span className="text-sm font-medium text-metallicBlack dark:text-white">
                     {isAdmin ? '👑 Admin User' : '👤 Regular User'}
                   </span>
@@ -267,7 +269,7 @@ export default function UploadForm() {
           className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4"
         >
           <div className="flex items-start space-x-3">
-            <AlertCircle className="text-yellow-500 flex-shrink-0 mt-1" size={20} />
+            <AlertCircle className="text-yellow-500 shrink-0 mt-1" size={20} />
             <div>
               <h3 className="font-semibold text-yellow-700 dark:text-yellow-400 mb-1">
                 Contracts Not Deployed
@@ -292,7 +294,7 @@ export default function UploadForm() {
             <motion.div
               whileHover={{ scale: 1.02 }}
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-gray/30 dark:border-gray/40 rounded-lg p-12 text-center cursor-pointer hover:border-lightBlue transition-colors bg-smokeWhite/50 dark:bg-metallicBlack/50"
+              className="border-2 border-dashed border-gray/30 dark:border-gray/40 rounded-lg p-12 text-center cursor-pointer hover:border-lightRed transition-colors bg-smokeWhite/50 dark:bg-metallicBlack/50"
             >
               <Upload className="mx-auto mb-4 text-gray dark:text-smokeWhite" size={48} />
               <p className="text-gray dark:text-smokeWhite">Click to upload or drag and drop</p>
@@ -340,7 +342,7 @@ export default function UploadForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter NFT name"
-            className="w-full px-4 py-3 border border-gray/30 dark:border-gray/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightBlue bg-white dark:bg-metallicBlack/50 text-metallicBlack dark:text-white placeholder-gray/50 dark:placeholder-smokeWhite/50"
+            className="w-full px-4 py-3 border border-gray/30 dark:border-gray/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightRed bg-white dark:bg-metallicBlack/50 text-metallicBlack dark:text-white placeholder-gray/50 dark:placeholder-smokeWhite/50"
           />
         </div>
 
@@ -354,7 +356,7 @@ export default function UploadForm() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe your NFT"
             rows={4}
-            className="w-full px-4 py-3 border border-gray/30 dark:border-gray/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightBlue resize-none bg-white dark:bg-metallicBlack/50 text-metallicBlack dark:text-white placeholder-gray/50 dark:placeholder-smokeWhite/50"
+            className="w-full px-4 py-3 border border-gray/30 dark:border-gray/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-lightRed resize-none bg-white dark:bg-metallicBlack/50 text-metallicBlack dark:text-white placeholder-gray/50 dark:placeholder-smokeWhite/50"
           />
         </div>
 
@@ -366,7 +368,7 @@ export default function UploadForm() {
             className="mb-4 bg-red-500/10 border border-red-500/30 rounded-lg p-3"
           >
             <div className="flex items-start space-x-2">
-              <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={18} />
+              <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           </motion.div>
@@ -377,12 +379,12 @@ export default function UploadForm() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-4 bg-lightBlue/10 border border-lightBlue/30 rounded-lg p-4"
+            className="mb-4 bg-lightRed/10 border border-lightRed/30 rounded-lg p-4"
           >
             <div className="flex items-start space-x-3">
-              <Loader2 className="text-lightBlue flex-shrink-0 animate-spin mt-1" size={20} />
+              <Loader2 className="text-lightRed shrink-0 animate-spin mt-1" size={20} />
               <div className="flex-1">
-                <p className="font-semibold text-blue dark:text-lightBlue mb-1">
+                <p className="font-semibold text-red dark:text-lightRed mb-1">
                   {mintStatus.stage === 'uploading' && '📦 Uploading to IPFS...'}
                   {mintStatus.stage === 'creating-metadata' && '📄 Creating metadata...'}
                   {mintStatus.stage === 'minting' && '⛓️ Minting on blockchain...'}
@@ -396,7 +398,7 @@ export default function UploadForm() {
                     href={`https://testnet.snowtrace.io/tx/${mintStatus.txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-lightBlue hover:underline mt-1 inline-flex items-center"
+                  className="text-xs text-lightRed hover:underline mt-1 inline-flex items-center"
                   >
                     View on Snowtrace <ExternalLink size={12} className="ml-1" />
                   </a>
@@ -415,7 +417,7 @@ export default function UploadForm() {
           className={`w-full py-3 rounded-lg font-semibold text-white transition-colors ${
             isLoading || !connected
               ? 'bg-gray cursor-not-allowed'
-              : 'bg-lightBlue hover:bg-blue'
+              : 'bg-lightRed hover:bg-red'
           }`}
         >
           {!connected ? (
@@ -428,15 +430,15 @@ export default function UploadForm() {
               {mintStatus?.stage === 'minting' && 'Minting...'}
               {!mintStatus && 'Processing...'}
             </span>
-          ) : contractsDeployed ? (
+          ) : contractsDeployed && appMode !== 'demo' ? (
             isAdmin ? '🚀 Admin Mint (Unlimited)' : '🎨 Public Mint (2 per 2hrs)'
           ) : (
             '🎨 Create NFT (Demo Mode)'
           )}
         </motion.button>
 
-        {/* Test Mint Button for Debugging - show only when contracts not deployed */}
-        {connected && !contractsDeployed && (
+        {/* Test Mint Button for Debugging - show only in demo mode */}
+        {connected && appMode === 'demo' && (
           <motion.button
             type="button"
             onClick={handleTestMint}
@@ -492,9 +494,9 @@ export default function UploadForm() {
                   : 'Your NFT has been created and added to your dashboard'}
               </p>
               {tokenId && (
-                <div className="bg-lightBlue/10 border border-lightBlue/30 rounded-lg p-3 mb-4">
+                <div className="bg-lightRed/10 border border-lightRed/30 rounded-lg p-3 mb-4">
                   <p className="text-sm text-gray dark:text-smokeWhite mb-1">Token ID</p>
-                  <p className="text-xl font-bold text-lightBlue font-mono">
+                  <p className="text-xl font-bold text-lightRed font-mono">
                     #{tokenId}
                   </p>
                 </div>
@@ -507,7 +509,7 @@ export default function UploadForm() {
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-full bg-blue text-white px-6 py-3 rounded-lg hover:bg-blue/90 transition-colors font-medium flex items-center justify-center space-x-2"
+                    className="w-full bg-red text-white px-6 py-3 rounded-lg hover:bg-red/90 transition-colors font-medium flex items-center justify-center space-x-2"
                   >
                     <ExternalLink size={18} />
                     <span>View Transaction on Snowtrace</span>
@@ -517,7 +519,7 @@ export default function UploadForm() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => router.push('/dashboard')}
-                  className="w-full bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium"
+                  className="w-full bg-lightRed text-white px-6 py-3 rounded-lg hover:bg-red transition-colors font-medium"
                 >
                   Go to Dashboard
                 </motion.button>

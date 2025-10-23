@@ -17,7 +17,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showDevWarning, setShowDevWarning] = useState(false);
 
-  const handleModeChange = (newMode: 'creator' | 'developer') => {
+  const handleModeChange = (newMode: 'demo' | 'creator' | 'developer') => {
     if (newMode === 'developer' && !hasAcknowledgedDevMode) {
       setShowDevWarning(true);
       return;
@@ -153,6 +153,16 @@ export default function Navbar() {
               <div className="mb-6">
                 <div className="text-xs uppercase tracking-wide text-gray dark:text-smokeWhite mb-2">Mode</div>
                 <div className="space-y-2">
+                  <button
+                    onClick={() => handleModeChange('demo')}
+                    className={`w-full px-3 py-2 rounded-lg border text-left ${
+                      appMode === 'demo'
+                        ? 'border-lightBlue bg-lightBlue/10 text-lightBlue'
+                        : 'border-gray/20 dark:border-gray/30 text-metallicBlack dark:text-white hover:border-lightBlue/50'
+                    }`}
+                  >
+                    Demo Mode
+                  </button>
                   <button
                     onClick={() => handleModeChange('creator')}
                     className={`w-full px-3 py-2 rounded-lg border text-left ${

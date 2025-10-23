@@ -8,6 +8,8 @@ import NetworkBanner from "@/components/wallet/NetworkBanner";
 import ThemeProvider from "@/components/ThemeProvider";
 import ModeRedirectHandler from "@/components/ModeRedirectHandler";
 import ConditionalLayout from "@/components/ConditionalLayout";
+import OnboardingModal from "@/components/OnboardingModal";
+import LoaderOverlay from "@/components/LoaderOverlay";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,6 +44,8 @@ export default function RootLayout({
               <Navbar />
             </ConditionalLayout>
             <main className="grow">{children}</main>
+            <OnboardingModal />
+            <LoaderOverlay />
             <ConditionalLayout>
               <Footer />
             </ConditionalLayout>

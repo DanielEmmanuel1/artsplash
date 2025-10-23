@@ -1,11 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import LazyNFTCard from '@/components/LazyNFTCard';
 import { scanMarketplaceListings, buyNFT, type MarketplaceListing } from '@/lib/marketplace';
 import { areContractsDeployed } from '@/lib/contracts';
 import { useWallet } from '@/lib/wallet/useWallet';
+import { useSettings } from '@/lib/settingsStore';
 import { Loader2 } from 'lucide-react';
 import { NFT } from '@/lib/store';
 
@@ -15,23 +17,9 @@ export default function ExplorePage() {
   const [buying, setBuying] = useState(false);
   const [buyingNftId, setBuyingNftId] = useState<string | null>(null);
   const { connected } = useWallet();
+  const { appMode } = useSettings();
 
-  // Require wallet connection to view marketplace
-  if (!connected) {
-    return (
-      <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray/20 rounded-xl p-10 text-center max-w-md w-full shadow-xl border border-transparent dark:border-gray/30"
-        >
-          <h2 className="text-3xl font-bold text-blue dark:text-lightBlue mb-3">Wallet Required</h2>
-          <p className="text-gray dark:text-smokeWhite mb-6">Connect your wallet to browse and buy NFTs on the marketplace.</p>
-          <a href="/" className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium">Connect Wallet</a>
-        </motion.div>
-      </div>
-    );
-  }
+  // Note: do not early return before hooks; handle gating later in render.
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -56,7 +44,7 @@ export default function ExplorePage() {
   }, []);
 
   const handleBuyClick = async (nft: NFT) => {
-    if (!connected) {
+    if (!connected && appMode !== 'demo') {
       alert('Please connect your wallet first!');
       return;
     }
@@ -91,8 +79,8 @@ export default function ExplorePage() {
       } else {
         alert(`❌ Failed to buy NFT: ${result.error}`);
       }
-    } catch (error: any) {
-      alert(`❌ Error: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setBuying(false);
       setBuyingNftId(null);
@@ -113,21 +101,21 @@ export default function ExplorePage() {
     contractAddress: listing.nftContract,
   }));
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lightBlue mx-auto mb-4"></div>
-          <p className="text-gray dark:text-smokeWhite">Scanning marketplace...</p>
-          <p className="text-sm text-gray dark:text-smokeWhite mt-2">Loading active listings</p>
-        </div>
+  const loadingView = (
+    <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lightBlue mx-auto mb-4"></div>
+        <p className="text-gray dark:text-smokeWhite">Scanning marketplace...</p>
+        <p className="text-sm text-gray dark:text-smokeWhite mt-2">Loading active listings</p>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack py-12 px-4">
       <div className="max-w-7xl mx-auto">
+        {(connected || appMode === 'demo') ? (
+        <>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -187,14 +175,12 @@ export default function ExplorePage() {
                 ? 'No NFTs listed on the marketplace yet' 
                 : 'Contracts not deployed - marketplace unavailable'}
             </p>
-            <motion.a
+            <Link
               href="/mint"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium"
+              className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium hover:scale-105 active:scale-95"
             >
               Mint & List Your NFT
-            </motion.a>
+            </Link>
           </motion.div>
         ) : (
           <motion.div
@@ -240,6 +226,18 @@ export default function ExplorePage() {
               🔄 Refresh Listings
             </motion.button>
           </div>
+        )}
+        </>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-gray/20 rounded-xl p-10 text-center max-w-md w-full shadow-xl border border-transparent dark:border-gray/30 mx-auto"
+          >
+            <h2 className="text-3xl font-bold text-blue dark:text-lightBlue mb-3">Wallet Required</h2>
+            <p className="text-gray dark:text-smokeWhite mb-6">Connect your wallet to browse and buy NFTs on the marketplace.</p>
+            <Link href="/" className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium">Connect Wallet</Link>
+          </motion.div>
         )}
       </div>
     </div>

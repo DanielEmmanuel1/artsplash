@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type AppMode = 'creator' | 'developer';
+export type AppMode = 'demo' | 'creator' | 'developer';
 export type ThemeMode = 'light' | 'dark';
 
 interface SettingsState {
@@ -17,13 +17,24 @@ interface SettingsState {
   // Developer mode acknowledgment
   hasAcknowledgedDevMode: boolean;
   acknowledgeDevMode: () => void;
+
+  // Onboarding modal
+  hasSeenOnboarding: boolean;
+  setHasSeenOnboarding: () => void;
+  onboardingVersion: number;
+  setOnboardingVersion: (v: number) => void;
+
+  // Global loader overlay
+  isGlobalLoading: boolean;
+  showGlobalLoading: (ms?: number) => void;
+  hideGlobalLoading: () => void;
 }
 
 export const useSettings = create<SettingsState>()(
   persist(
     (set) => ({
-      // Default to creator mode
-      appMode: 'creator',
+      // Default to demo mode (no on-chain actions until user opts in)
+      appMode: 'demo',
       setAppMode: (mode) => set({ appMode: mode }),
       
       // Default to light theme
@@ -36,6 +47,20 @@ export const useSettings = create<SettingsState>()(
       // Developer mode acknowledgment
       hasAcknowledgedDevMode: false,
       acknowledgeDevMode: () => set({ hasAcknowledgedDevMode: true }),
+
+      // Onboarding (versioned)
+      hasSeenOnboarding: false,
+      setHasSeenOnboarding: () => set({ hasSeenOnboarding: true }),
+      onboardingVersion: 1,
+      setOnboardingVersion: (v: number) => set({ onboardingVersion: v }),
+
+      // Global loader overlay
+      isGlobalLoading: false,
+      showGlobalLoading: (ms: number = 1000) => {
+        set({ isGlobalLoading: true });
+        setTimeout(() => set({ isGlobalLoading: false }), ms);
+      },
+      hideGlobalLoading: () => set({ isGlobalLoading: false }),
     }),
     {
       name: 'artistic-splash-settings',
