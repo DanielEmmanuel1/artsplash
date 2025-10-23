@@ -6,15 +6,16 @@ import { AlertTriangle } from 'lucide-react';
 import { useSettings } from '@/lib/settingsStore';
 
 export default function OnboardingModal() {
-  const { appMode, setAppMode, showGlobalLoading } = useSettings();
+  const { appMode, setAppMode, showGlobalLoading, hasSeenOnboarding, setHasSeenOnboarding } = useSettings();
   const [show, setShow] = useState(false);
   const [ack, setAck] = useState(false);
   const [pendingMode, setPendingMode] = useState<'demo'|'creator'|'developer'>(appMode);
 
   useEffect(() => {
-    const t = setTimeout(() => setShow(true), 5000); // always show 5s after entering
+    if (hasSeenOnboarding) return; // already acknowledged for this user
+    const t = setTimeout(() => setShow(true), 5000);
     return () => clearTimeout(t);
-  }, []);
+  }, [hasSeenOnboarding]);
 
   // Disable background scrolling while modal is shown
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function OnboardingModal() {
 
   const close = () => {
     if (!ack) return;
+    setHasSeenOnboarding();
     setShow(false);
   };
 
@@ -55,14 +57,14 @@ export default function OnboardingModal() {
           </div>
           <div className="space-y-4 mb-6">
             <p className="text-gray dark:text-smokeWhite leading-relaxed">
-              Artistic Splash is a creator-focused NFT studio on Avalanche. Mint one-of-one art, list on the marketplace, and manage your collection with a clean, modern UI.
+            Artistic Splash was born out of a simple idea , to give artists and creators a fun, effortless way to bring their digital art to life on the blockchain. Built on <span className="font-semibold text-red-400">Avalanche, </span>creators can simply upload their artwork, whether it’s a painting, design, or photograph, and instantly transform it into an NFT.
             </p>
 
             <div>
               <h4 className="font-semibold text-metallicBlack dark:text-white mb-2">Modes</h4>
               <ul className="space-y-2 text-sm text-gray dark:text-smokeWhite">
                 <li>
-                  <span className="font-semibold text-lightBlue">Demo Mode</span> — Explore without a wallet. No on-chain actions. Great for getting a feel of the app.
+                  <span className="font-semibold text-red-400">Demo Mode</span> — Explore without a wallet. No on-chain actions. Great for getting a feel of the app.
                 </li>
                 <li>
                   <span className="font-semibold">Creator Mode</span> — Real on-chain minting/listing. Requires a wallet and AVAX for gas.

@@ -18,22 +18,7 @@ export default function ExplorePage() {
   const { connected } = useWallet();
   const { appMode } = useSettings();
 
-  // Require wallet except in demo mode
-  if (!connected && appMode !== 'demo') {
-    return (
-      <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray/20 rounded-xl p-10 text-center max-w-md w-full shadow-xl border border-transparent dark:border-gray/30"
-        >
-          <h2 className="text-3xl font-bold text-blue dark:text-lightBlue mb-3">Wallet Required</h2>
-          <p className="text-gray dark:text-smokeWhite mb-6">Connect your wallet to browse and buy NFTs on the marketplace.</p>
-          <a href="/" className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium">Connect Wallet</a>
-        </motion.div>
-      </div>
-    );
-  }
+  // Note: do not early return before hooks; handle gating later in render.
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -115,21 +100,21 @@ export default function ExplorePage() {
     contractAddress: listing.nftContract,
   }));
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lightBlue mx-auto mb-4"></div>
-          <p className="text-gray dark:text-smokeWhite">Scanning marketplace...</p>
-          <p className="text-sm text-gray dark:text-smokeWhite mt-2">Loading active listings</p>
-        </div>
+  const loadingView = (
+    <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lightBlue mx-auto mb-4"></div>
+        <p className="text-gray dark:text-smokeWhite">Scanning marketplace...</p>
+        <p className="text-sm text-gray dark:text-smokeWhite mt-2">Loading active listings</p>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack py-12 px-4">
       <div className="max-w-7xl mx-auto">
+        {(connected || appMode === 'demo') ? (
+        <>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -242,6 +227,18 @@ export default function ExplorePage() {
               🔄 Refresh Listings
             </motion.button>
           </div>
+        )}
+        </>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-gray/20 rounded-xl p-10 text-center max-w-md w-full shadow-xl border border-transparent dark:border-gray/30 mx-auto"
+          >
+            <h2 className="text-3xl font-bold text-blue dark:text-lightBlue mb-3">Wallet Required</h2>
+            <p className="text-gray dark:text-smokeWhite mb-6">Connect your wallet to browse and buy NFTs on the marketplace.</p>
+            <a href="/" className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium">Connect Wallet</a>
+          </motion.div>
         )}
       </div>
     </div>
