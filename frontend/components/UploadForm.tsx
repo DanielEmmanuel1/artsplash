@@ -261,8 +261,8 @@ export default function UploadForm() {
             </motion.div>
           )}
 
-          {/* Contract Deployment Warning */}
-          {!contractsDeployed && (
+          {/* Demo mode notice (hide in Creator/Developer modes) */}
+          {appMode === 'demo' && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -272,11 +272,10 @@ export default function UploadForm() {
             <AlertCircle className="text-yellow-500 shrink-0 mt-1" size={20} />
             <div>
               <h3 className="font-semibold text-yellow-700 dark:text-yellow-400 mb-1">
-                Contracts Not Deployed
+                Demo Mode
               </h3>
               <p className="text-sm text-yellow-600 dark:text-yellow-300">
-                Smart contracts haven't been deployed yet. For now, you can test the UI with mock mode.
-                See <code className="bg-yellow-500/20 px-1 rounded">CONTRACTS_SETUP.md</code> for deployment instructions.
+                You are previewing without on-chain transactions. Switch to Creator or Developer mode to mint on-chain.
               </p>
             </div>
           </div>
