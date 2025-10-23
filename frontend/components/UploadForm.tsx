@@ -275,7 +275,7 @@ export default function UploadForm() {
                 Demo Mode
               </h3>
               <p className="text-sm text-yellow-600 dark:text-yellow-300">
-                You are previewing without on-chain transactions. Switch to Creator or Developer mode to mint on-chain.
+                You are previewing without on-chain transactions. Switch to Creator or Developer mode to mint on Avalanche Fuji Testnet.
               </p>
             </div>
           </div>

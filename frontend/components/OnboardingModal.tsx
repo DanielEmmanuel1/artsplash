@@ -78,7 +78,7 @@ export default function OnboardingModal() {
             <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
               <AlertTriangle className="text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" size={18} />
               <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                Disclaimer: This is a test application. Use a burner wallet and avoid using funds you can’t afford to lose.
+                Disclaimer: This is a test application. While the app is solely on testnet, its still advice to use a burner wallet just to be safe.
               </p>
             </div>
 
