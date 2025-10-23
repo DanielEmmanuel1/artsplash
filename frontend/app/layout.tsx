@@ -9,8 +9,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import ModeRedirectHandler from "@/components/ModeRedirectHandler";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import OnboardingModal from "@/components/OnboardingModal";
-import { useSettings } from "@/lib/settingsStore";
-import { useEffect } from "react";
+import LoaderOverlay from "@/components/LoaderOverlay";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,16 +31,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Global loader overlay element
-  const LoaderOverlay = () => {
-    const { isGlobalLoading } = useSettings();
-    if (!isGlobalLoading) return null;
-    return (
-      <div className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-lightBlue border-t-transparent" />
-      </div>
-    );
-  };
   return (
     <html lang="en">
       <body
