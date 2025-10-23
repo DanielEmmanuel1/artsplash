@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Palette, Code, Check } from 'lucide-react';
 import { useSettings, AppMode } from '@/lib/settingsStore';
@@ -9,6 +9,7 @@ import DevModeWarningModal from './DevModeWarningModal';
 export default function SettingsMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [showDevWarning, setShowDevWarning] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const { 
     appMode, 
     setAppMode, 
@@ -23,6 +24,8 @@ export default function SettingsMenu() {
     } else {
       setAppMode(newMode);
       showGlobalLoading(2000);
+      setIsOpen(false);
+      buttonRef.current?.blur();
     }
   };
 
@@ -30,6 +33,9 @@ export default function SettingsMenu() {
     acknowledgeDevMode();
     setAppMode('developer');
     setShowDevWarning(false);
+    showGlobalLoading(2000);
+    setIsOpen(false);
+    buttonRef.current?.blur();
   };
 
   return (
@@ -37,6 +43,7 @@ export default function SettingsMenu() {
       {/* Settings Button */}
       <div className="relative">
         <motion.button
+          ref={buttonRef}
           whileHover={{ scale: 1.05, rotate: 90 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen(!isOpen)}
