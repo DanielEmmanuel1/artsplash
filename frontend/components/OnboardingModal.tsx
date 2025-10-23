@@ -6,21 +6,19 @@ import { X, Check } from 'lucide-react';
 import { useSettings } from '@/lib/settingsStore';
 
 export default function OnboardingModal() {
-  const { appMode, setAppMode, hasSeenOnboarding, setHasSeenOnboarding, onboardingVersion } = useSettings();
+  const { appMode, setAppMode } = useSettings();
   const [show, setShow] = useState(false);
   const [ack, setAck] = useState(false);
 
   useEffect(() => {
-    if (hasSeenOnboarding) return; // already acknowledged
-    const t = setTimeout(() => setShow(true), 5000);
+    const t = setTimeout(() => setShow(true), 5000); // always show 5s after entering
     return () => clearTimeout(t);
-  }, [hasSeenOnboarding, onboardingVersion]);
+  }, []);
 
-  if (hasSeenOnboarding || !show) return null;
+  if (!show) return null;
 
   const close = () => {
     if (!ack) return;
-    setHasSeenOnboarding();
     setShow(false);
   };
 
@@ -40,9 +38,6 @@ export default function OnboardingModal() {
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xl font-bold text-metallicBlack dark:text-white">Welcome to Artistic Splash</h3>
-            <button onClick={close} disabled={!ack} className="p-1 rounded hover:bg-smokeWhite dark:hover:bg-gray/30 disabled:opacity-40">
-              <X size={20} className="text-metallicBlack dark:text-white" />
-            </button>
           </div>
           <div className="space-y-3 mb-4">
             <p className="text-gray dark:text-smokeWhite">
