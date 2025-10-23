@@ -210,7 +210,7 @@ export default function ExplorePage() {
                   onAction={buying && buyingNftId === nft.id ? undefined : () => handleBuyClick(nft)}
                   actionLabel={buying && buyingNftId === nft.id ? 'Buying...' : 'Buy Now'}
                   showPrice={true}
-                  showListedTag={false} // Don't show "Listed" tag on marketplace page
+                      showListedTag={false} // Do not show "Listed" tag on marketplace page
                   index={index}
                 />
                 {buying && buyingNftId === nft.id && (

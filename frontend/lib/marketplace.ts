@@ -137,7 +137,7 @@ export async function listNFT(
       console.log('⏳ Waiting for approval transaction:', approveTxHash);
       await waitForTransactionReceipt(wagmiConfig, { hash: approveTxHash });
       console.log('✅ setApprovalForAll confirmed! Marketplace can now transfer ALL your NFTs from this contract.');
-      console.log('   (This is more gas-efficient and you won\'t need to approve again for future listings)');
+        console.log('   (This is more gas-efficient and you won\'t need to approve again for future listings)');
     } catch (approveAllErr: unknown) {
       const errMsg = (approveAllErr as { shortMessage?: string; message?: string })?.shortMessage || (approveAllErr as { message?: string })?.message || String(approveAllErr);
       console.warn('⚠️ setApprovalForAll failed, falling back to approve(tokenId)...', errMsg);
