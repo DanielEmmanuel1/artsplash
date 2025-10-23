@@ -23,6 +23,11 @@ interface SettingsState {
   setHasSeenOnboarding: () => void;
   onboardingVersion: number;
   setOnboardingVersion: (v: number) => void;
+
+  // Global loader overlay
+  isGlobalLoading: boolean;
+  showGlobalLoading: (ms?: number) => void;
+  hideGlobalLoading: () => void;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -48,6 +53,14 @@ export const useSettings = create<SettingsState>()(
       setHasSeenOnboarding: () => set({ hasSeenOnboarding: true }),
       onboardingVersion: 1,
       setOnboardingVersion: (v: number) => set({ onboardingVersion: v }),
+
+      // Global loader overlay
+      isGlobalLoading: false,
+      showGlobalLoading: (ms: number = 1000) => {
+        set({ isGlobalLoading: true });
+        setTimeout(() => set({ isGlobalLoading: false }), ms);
+      },
+      hideGlobalLoading: () => set({ isGlobalLoading: false }),
     }),
     {
       name: 'artistic-splash-settings',

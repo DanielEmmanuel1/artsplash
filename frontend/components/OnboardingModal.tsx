@@ -6,9 +6,10 @@ import { AlertTriangle } from 'lucide-react';
 import { useSettings } from '@/lib/settingsStore';
 
 export default function OnboardingModal() {
-  const { appMode, setAppMode } = useSettings();
+  const { appMode, setAppMode, showGlobalLoading } = useSettings();
   const [show, setShow] = useState(false);
   const [ack, setAck] = useState(false);
+  const [pendingMode, setPendingMode] = useState<'demo'|'creator'|'developer'>(appMode);
 
   useEffect(() => {
     const t = setTimeout(() => setShow(true), 5000); // always show 5s after entering
@@ -80,16 +81,26 @@ export default function OnboardingModal() {
             </div>
 
             <div className="grid gap-2">
-              <button onClick={() => setAppMode('demo')} className={`px-4 py-2 rounded-lg border ${appMode==='demo'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Demo Mode (no wallet)</button>
-              <button onClick={() => setAppMode('creator')} className={`px-4 py-2 rounded-lg border ${appMode==='creator'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Creator Mode (on-chain)</button>
-              <button onClick={() => setAppMode('developer')} className={`px-4 py-2 rounded-lg border ${appMode==='developer'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Developer Mode</button>
+              <button onClick={() => setPendingMode('demo')} className={`px-4 py-2 rounded-lg border ${pendingMode==='demo'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Demo Mode (no wallet)</button>
+              <button onClick={() => setPendingMode('creator')} className={`px-4 py-2 rounded-lg border ${pendingMode==='creator'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Creator Mode (on-chain)</button>
+              <button onClick={() => setPendingMode('developer')} className={`px-4 py-2 rounded-lg border ${pendingMode==='developer'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Developer Mode</button>
             </div>
           </div>
           <label className="flex items-center gap-2 text-sm text-gray dark:text-smokeWhite mb-4 select-none cursor-pointer">
             <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="w-4 h-4" />
             I understand how the modes work and agree to continue.
           </label>
-          <button onClick={close} disabled={!ack} className="w-full px-4 py-3 rounded-lg bg-lightBlue text-white disabled:opacity-40 disabled:cursor-not-allowed">
+          <button
+            onClick={() => {
+              if (!ack) return;
+              // apply mode and show loader 3s
+              setAppMode(pendingMode);
+              showGlobalLoading(3000);
+              close();
+            }}
+            disabled={!ack}
+            className="w-full px-4 py-3 rounded-lg bg-lightBlue text-white disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             Continue to app
           </button>
         </motion.div>
