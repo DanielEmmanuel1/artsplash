@@ -1,22 +1,28 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { useSettings } from '@/lib/settingsStore';
 
 export default function OnboardingModal() {
   const { appMode, setAppMode, hasSeenOnboarding, setHasSeenOnboarding } = useSettings();
+  const [show, setShow] = useState(false);
+  const [ack, setAck] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // show only if not seen yet
-      if (!hasSeenOnboarding) setHasSeenOnboarding();
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [hasSeenOnboarding, setHasSeenOnboarding]);
+    if (hasSeenOnboarding) return; // never show again
+    const t = setTimeout(() => setShow(true), 5000);
+    return () => clearTimeout(t);
+  }, [hasSeenOnboarding]);
 
-  if (hasSeenOnboarding) return null;
+  if (hasSeenOnboarding || !show) return null;
+
+  const close = () => {
+    if (!ack) return;
+    setHasSeenOnboarding();
+    setShow(false);
+  };
 
   return (
     <AnimatePresence>
@@ -32,20 +38,29 @@ export default function OnboardingModal() {
           exit={{ scale: 0.9, opacity: 0 }}
           className="bg-white dark:bg-metallicBlack rounded-xl p-6 max-w-lg w-full border border-gray/20 dark:border-gray/40 shadow-2xl"
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-xl font-bold text-metallicBlack dark:text-white">Welcome to Artistic Splash</h3>
-            <button onClick={() => setHasSeenOnboarding()} className="p-1 rounded hover:bg-smokeWhite dark:hover:bg-gray/30">
+            <button onClick={close} disabled={!ack} className="p-1 rounded hover:bg-smokeWhite dark:hover:bg-gray/30 disabled:opacity-40">
               <X size={20} className="text-metallicBlack dark:text-white" />
             </button>
           </div>
-          <p className="text-gray dark:text-smokeWhite mb-4">
-            Explore the app in Demo Mode (no wallet needed). Switch to Creator Mode to mint on-chain, or Developer Mode for extra tools.
-          </p>
-          <div className="grid gap-2">
-            <button onClick={() => { setAppMode('demo'); setHasSeenOnboarding(); }} className={`px-4 py-2 rounded-lg border ${appMode==='demo'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Demo Mode</button>
-            <button onClick={() => { setAppMode('creator'); setHasSeenOnboarding(); }} className={`px-4 py-2 rounded-lg border ${appMode==='creator'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Creator Mode</button>
-            <button onClick={() => { setAppMode('developer'); setHasSeenOnboarding(); }} className={`px-4 py-2 rounded-lg border ${appMode==='developer'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Developer Mode</button>
+          <div className="space-y-3 mb-4">
+            <p className="text-gray dark:text-smokeWhite">
+              Try the app in <span className="font-semibold text-lightBlue">Demo Mode</span> without a wallet. Switch to <span className="font-semibold">Creator Mode</span> to mint on-chain, or <span className="font-semibold">Developer Mode</span> for advanced tools.
+            </p>
+            <div className="grid gap-2">
+              <button onClick={() => setAppMode('demo')} className={`px-4 py-2 rounded-lg border ${appMode==='demo'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Demo Mode (no wallet)</button>
+              <button onClick={() => setAppMode('creator')} className={`px-4 py-2 rounded-lg border ${appMode==='creator'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Creator Mode (on-chain)</button>
+              <button onClick={() => setAppMode('developer')} className={`px-4 py-2 rounded-lg border ${appMode==='developer'?'border-lightBlue bg-lightBlue/10 text-lightBlue':'border-gray/30 dark:border-gray/40 text-metallicBlack dark:text-white'}`}>Developer Mode</button>
+            </div>
           </div>
+          <label className="flex items-center gap-2 text-sm text-gray dark:text-smokeWhite mb-4 select-none cursor-pointer">
+            <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="w-4 h-4" />
+            I understand how the modes work and agree to continue.
+          </label>
+          <button onClick={close} disabled={!ack} className="w-full px-4 py-2 rounded-lg bg-lightBlue text-white disabled:opacity-40 disabled:cursor-not-allowed">
+            Continue to app
+          </button>
         </motion.div>
       </motion.div>
     </AnimatePresence>
