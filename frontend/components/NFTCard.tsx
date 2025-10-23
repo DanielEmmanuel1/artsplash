@@ -9,6 +9,7 @@ interface NFTCardProps {
   onAction?: (nftId: string) => void;
   actionLabel?: string;
   showPrice?: boolean;
+  showListedTag?: boolean; // Whether to show "Listed" tag
 }
 
 export default function NFTCard({
@@ -16,6 +17,7 @@ export default function NFTCard({
   onAction,
   actionLabel = 'View',
   showPrice = true,
+  showListedTag = false,
 }: NFTCardProps) {
   return (
     <motion.div
@@ -67,10 +69,10 @@ export default function NFTCard({
           )}
         </div>
 
-        {nft.isListed && (
+        {showListedTag && nft.isListed && (
           <div className="mt-2">
-            <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-              Listed
+            <span className="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs px-2 py-1 rounded-full">
+              ✅ Listed
             </span>
           </div>
         )}
