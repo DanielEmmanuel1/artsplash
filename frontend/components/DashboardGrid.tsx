@@ -19,7 +19,7 @@ interface DashboardGridProps {
 }
 
 export default function DashboardGrid({ onCountsUpdate }: DashboardGridProps) {
-  const { userNFTs, listNFT } = useStore();
+  const { userNFTs, listNFT, getOwnedCache, setOwnedCache, getSellerListingCache, setSellerListingCache } = useStore();
   const { connected, address } = useWallet();
   const [showListModal, setShowListModal] = useState(false);
   const [selectedNFT, setSelectedNFT] = useState<StoreNFT | null>(null);
@@ -44,6 +44,19 @@ export default function DashboardGrid({ onCountsUpdate }: DashboardGridProps) {
         }
         
         setLoadingOnChain(true);
+
+        // Cached owned NFTs for this address (5 min TTL)
+        const ownedCached = getOwnedCache(address);
+        const ttlMs = 5 * 60 * 1000;
+        if (ownedCached && Date.now() - ownedCached.fetchedAt < ttlMs) {
+          console.log('🗃️ Using cached owned NFTs');
+          setChainNFTs(ownedCached.nfts);
+          const listed = ownedCached.nfts.filter(n => n.isListed).length;
+          const listedValue = ownedCached.nfts.filter(n => n.isListed).reduce((s, n) => s + (n.price || 0), 0);
+          if (onCountsUpdate) onCountsUpdate(ownedCached.nfts.length, ownedCached.nfts.length, listed, listedValue);
+          setLoadingOnChain(false);
+          return;
+        }
         console.log('🔍 Scanning ALL ERC721 transfers to your wallet:', address);
 
         // Get the public client
@@ -206,6 +219,7 @@ export default function DashboardGrid({ onCountsUpdate }: DashboardGridProps) {
 
         console.log(`🎉 Final result: ${nfts.length} Artistic Splash NFTs`);
         setChainNFTs(nfts);
+        setOwnedCache(address, nfts);
 
         // Update parent component with counts
         const listed = nfts.filter(n => n.isListed).length;
@@ -249,6 +263,12 @@ export default function DashboardGrid({ onCountsUpdate }: DashboardGridProps) {
           return;
         }
         setLoadingMyListings(true);
+        const cached = getSellerListingCache(address);
+        const ttlMs = 5 * 60 * 1000;
+        if (cached && Date.now() - cached.fetchedAt < ttlMs) {
+          setMyListings(cached.nfts);
+          return;
+        }
         const listings = await scanSellerListings(address);
         // Convert to StoreNFT for display
         const mapped: StoreNFT[] = listings.map(l => ({
@@ -264,6 +284,7 @@ export default function DashboardGrid({ onCountsUpdate }: DashboardGridProps) {
           contractAddress: l.nftContract,
         }));
         setMyListings(mapped);
+        setSellerListingCache(address, mapped);
       } finally {
         setLoadingMyListings(false);
       }

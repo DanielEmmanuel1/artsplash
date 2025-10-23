@@ -16,6 +16,23 @@ export default function ExplorePage() {
   const [buyingNftId, setBuyingNftId] = useState<string | null>(null);
   const { connected } = useWallet();
 
+  // Require wallet connection to view marketplace
+  if (!connected) {
+    return (
+      <div className="min-h-screen bg-smokeWhite dark:bg-metallicBlack flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-gray/20 rounded-xl p-10 text-center max-w-md w-full shadow-xl border border-transparent dark:border-gray/30"
+        >
+          <h2 className="text-3xl font-bold text-blue dark:text-lightBlue mb-3">Wallet Required</h2>
+          <p className="text-gray dark:text-smokeWhite mb-6">Connect your wallet to browse and buy NFTs on the marketplace.</p>
+          <a href="/" className="inline-block bg-lightBlue text-white px-6 py-3 rounded-lg hover:bg-blue transition-colors font-medium">Connect Wallet</a>
+        </motion.div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     const fetchListings = async () => {
       setLoading(true);

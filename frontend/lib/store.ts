@@ -28,6 +28,14 @@ interface AppState {
   addNFT: (nft: Omit<NFT, 'id' | 'createdAt' | 'owner'>) => void;
   listNFT: (id: string, price: number) => void;
   unlistNFT: (id: string) => void;
+
+  // Caches (to avoid re-fetching on page transitions)
+  ownedCache: Record<string, { nfts: NFT[]; fetchedAt: number }>;
+  sellerListingsCache: Record<string, { nfts: NFT[]; fetchedAt: number }>;
+  getOwnedCache: (address: string) => { nfts: NFT[]; fetchedAt: number } | undefined;
+  setOwnedCache: (address: string, nfts: NFT[]) => void;
+  getSellerListingCache: (address: string) => { nfts: NFT[]; fetchedAt: number } | undefined;
+  setSellerListingCache: (address: string, nfts: NFT[]) => void;
 }
 
 // Mock wallet address generator
@@ -106,12 +114,16 @@ const mockNFTs: NFT[] = [
 
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Initial state
       isWalletConnected: false,
       walletAddress: null,
       userNFTs: [],
       allNFTs: mockNFTs,
+
+      // Caches
+      ownedCache: {},
+      sellerListingsCache: {},
 
       // Wallet actions
       connectWallet: () => {
@@ -166,12 +178,38 @@ export const useStore = create<AppState>()(
           ),
         }));
       },
+
+      // Cache helpers
+      getOwnedCache: (address) => {
+        return get().ownedCache[address];
+      },
+      setOwnedCache: (address, nfts) => {
+        set((state) => ({
+          ownedCache: {
+            ...state.ownedCache,
+            [address]: { nfts, fetchedAt: Date.now() },
+          },
+        }));
+      },
+      getSellerListingCache: (address) => {
+        return get().sellerListingsCache[address];
+      },
+      setSellerListingCache: (address, nfts) => {
+        set((state) => ({
+          sellerListingsCache: {
+            ...state.sellerListingsCache,
+            [address]: { nfts, fetchedAt: Date.now() },
+          },
+        }));
+      },
     }),
     {
       name: 'artistic-splash-store',
       partialize: (state) => ({
         userNFTs: state.userNFTs,
         allNFTs: state.allNFTs,
+        ownedCache: state.ownedCache,
+        sellerListingsCache: state.sellerListingsCache,
       }),
     }
   )

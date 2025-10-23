@@ -7,10 +7,29 @@ import ConnectWalletButton from './wallet/ConnectWalletButton';
 import SettingsMenu from './SettingsMenu';
 import ThemeToggle from './ThemeToggle';
 import { useSettings } from '@/lib/settingsStore';
+import DevModeWarningModal from './DevModeWarningModal';
+import { useState } from 'react';
+import { Menu, X } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { appMode } = useSettings();
+  const { appMode, setAppMode, hasAcknowledgedDevMode, acknowledgeDevMode } = useSettings();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showDevWarning, setShowDevWarning] = useState(false);
+
+  const handleModeChange = (newMode: 'creator' | 'developer') => {
+    if (newMode === 'developer' && !hasAcknowledgedDevMode) {
+      setShowDevWarning(true);
+      return;
+    }
+    setAppMode(newMode);
+  };
+
+  const handleDevConfirm = () => {
+    acknowledgeDevMode();
+    setAppMode('developer');
+    setShowDevWarning(false);
+  };
 
       const baseNavLinks = [
         { href: '/mint', label: 'Mint' },
@@ -44,8 +63,8 @@ export default function Navbar() {
             </motion.h1>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Navigation Links (Desktop - large and up) */}
+          <div className="hidden lg:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -71,33 +90,103 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right Side: Theme Toggle + Settings + Wallet */}
+          {/* Right Side */}
           <div className="flex items-center space-x-3">
-            <ThemeToggle />
-            <SettingsMenu />
-            <ConnectWalletButton />
+            {/* Desktop actions */}
+            <div className="hidden lg:flex items-center space-x-3">
+              <ThemeToggle />
+              <SettingsMenu />
+              <ConnectWalletButton />
+            </div>
+            {/* Mobile hamburger */}
+            <button
+              aria-label="Open menu"
+              className="lg:hidden p-2 rounded-lg border border-gray/20 dark:border-gray/30 hover:bg-smokeWhite dark:hover:bg-gray/30"
+              onClick={() => setMobileOpen(true)}
+            >
+              <Menu className="text-metallicBlack dark:text-white" size={22} />
+            </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="md:hidden flex justify-around pb-3">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm ${
-                pathname === link.href
-                  ? 'text-lightBlue font-semibold'
-                  : 'text-metallicBlack dark:text-white'
-              }`}
+        {/* Mobile Slide-In Menu */}
+        {mobileOpen && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-50"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.25 }}
+              className="fixed right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white dark:bg-metallicBlack border-l border-gray/20 dark:border-gray/30 z-50 p-6 flex flex-col"
             >
-              {link.label}
-              {'isDev' in link && link.isDev && (
-                <span className="ml-1 text-xs">🔧</span>
-              )}
-            </Link>
-          ))}
-        </div>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-lg font-semibold text-metallicBlack dark:text-white">Menu</span>
+                <button
+                  aria-label="Close menu"
+                  className="p-2 rounded-lg hover:bg-smokeWhite dark:hover:bg-gray/30"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <X className="text-metallicBlack dark:text-white" size={22} />
+                </button>
+              </div>
+              <nav className="space-y-3 mb-6">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`block px-3 py-2 rounded-lg text-base font-medium transition-colors ${
+                      pathname === link.href
+                        ? 'bg-smokeWhite dark:bg-gray/30 text-lightBlue'
+                        : 'text-metallicBlack dark:text-white hover:bg-smokeWhite dark:hover:bg-gray/30'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+              {/* Integrated Settings (Mode) */}
+              <div className="mb-6">
+                <div className="text-xs uppercase tracking-wide text-gray dark:text-smokeWhite mb-2">Mode</div>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleModeChange('creator')}
+                    className={`w-full px-3 py-2 rounded-lg border text-left ${
+                      appMode === 'creator'
+                        ? 'border-lightBlue bg-lightBlue/10 text-lightBlue'
+                        : 'border-gray/20 dark:border-gray/30 text-metallicBlack dark:text-white hover:border-lightBlue/50'
+                    }`}
+                  >
+                    Creator Mode
+                  </button>
+                  <button
+                    onClick={() => handleModeChange('developer')}
+                    className={`w-full px-3 py-2 rounded-lg border text-left ${
+                      appMode === 'developer'
+                        ? 'border-lightBlue bg-lightBlue/10 text-lightBlue'
+                        : 'border-gray/20 dark:border-gray/30 text-metallicBlack dark:text-white hover:border-lightBlue/50'
+                    }`}
+                  >
+                    Developer Mode
+                  </button>
+                </div>
+              </div>
+              <div className="mt-auto space-y-3">
+                <ThemeToggle />
+                <ConnectWalletButton />
+              </div>
+            </motion.div>
+          </>
+        )}
+        <DevModeWarningModal
+          isOpen={showDevWarning}
+          onConfirm={handleDevConfirm}
+          onCancel={() => setShowDevWarning(false)}
+        />
       </div>
     </motion.nav>
   );
